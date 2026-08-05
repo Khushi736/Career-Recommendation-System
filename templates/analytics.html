@@ -1,0 +1,130 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Analytics | Career AI{% endblock %}
+{% block header_title %}System Analytics{% endblock %}
+
+{% block content %}
+<style>
+    /* Specific layout styles relying on your existing CSS variables */
+    .analytics-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+        gap: 24px; 
+        margin-bottom: 40px; 
+    }
+    
+    .chart-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); 
+        gap: 24px; 
+        margin-bottom: 40px; 
+    }
+    
+    .chart-container { 
+        background: var(--card-bg); 
+        border: 1px solid var(--border); 
+        border-radius: 18px; 
+        padding: 24px; 
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chart-placeholder {
+        flex: 1;
+        margin-top: 15px;
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,0.1);
+    }
+
+    /* Skill Bars Styling */
+    .skill-row { margin-bottom: 20px; }
+    .skill-info { 
+        display: flex; 
+        justify-content: space-between; 
+        margin-bottom: 8px; 
+        font-size: 14px; 
+        font-weight: 500; 
+    }
+    .progress-bg { 
+        height: 8px; 
+        background: rgba(255,255,255,0.05); 
+        border-radius: 4px; 
+        overflow: hidden; 
+    }
+    .progress-fill { 
+        height: 100%; 
+        background: var(--accent-primary); 
+        border-radius: 4px; 
+    }
+</style>
+
+<div class="analytics-grid">
+    <div class="card">
+        <span style="color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase;">AI Accuracy</span>
+        <h4 style="font-size: 28px; font-weight: 700; margin: 10px 0; color: var(--text-main);">94.2%</h4>
+        <span style="color: var(--success); font-size: 12px;"><i class="fas fa-arrow-up"></i> 1.2% growth</span>
+    </div>
+    <div class="card">
+        <span style="color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase;">Avg. Score</span>
+        <h4 style="font-size: 28px; font-weight: 700; margin: 10px 0; color: var(--text-main);">76%</h4>
+        <span style="color: var(--success); font-size: 12px;"><i class="fas fa-arrow-up"></i> +5 pts increase</span>
+    </div>
+    <div class="card">
+        <span style="color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase;">Total Scans</span>
+        <h4 style="font-size: 28px; font-weight: 700; margin: 10px 0; color: var(--text-main);">{{ total_scans|default(10) }}</h4>
+        <span style="color: var(--text-muted); font-size: 12px;">System lifetime</span>
+    </div>
+    <div class="card">
+        <span style="color: var(--text-muted); font-size: 12px; font-weight: 600; text-transform: uppercase;">Top Demand</span>
+        <h4 style="font-size: 28px; font-weight: 700; margin: 10px 0; color: var(--accent-primary);">Python Dev</h4>
+        <span style="color: var(--text-muted); font-size: 12px;">Market Leader</span>
+    </div>
+</div>
+
+<div class="chart-grid">
+    <div class="chart-container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-size: 16px; font-weight: 600;">Prediction Trends</h3>
+            <i class="fas fa-chart-line" style="color: var(--accent-primary);"></i>
+        </div>
+        <div class="chart-placeholder">
+            <i class="fas fa-microchip fa-3x" style="opacity: 0.2; margin-bottom: 10px;"></i>
+            <span style="color: var(--text-muted); font-size: 13px;">Monthly Processing Volume</span>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-size: 16px; font-weight: 600;">Score Distribution</h3>
+            <i class="fas fa-chart-pie" style="color: var(--accent-primary);"></i>
+        </div>
+        <div class="chart-placeholder">
+            <i class="fas fa-users-viewfinder fa-3x" style="opacity: 0.2; margin-bottom: 10px;"></i>
+            <span style="color: var(--text-muted); font-size: 13px;">User Performance Spread</span>
+        </div>
+    </div>
+</div>
+
+<div class="chart-container" style="min-height: auto;">
+    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 25px;">Top In-Demand Skills (System Wide)</h3>
+    
+    <div class="skill-row">
+        <div class="skill-info"><span>Python / Data Science</span><span>88%</span></div>
+        <div class="progress-bg"><div class="progress-fill" style="width: 88%;"></div></div>
+    </div>
+    <div class="skill-row">
+        <div class="skill-info"><span>Cloud Computing (AWS/Azure)</span><span>72%</span></div>
+        <div class="progress-bg"><div class="progress-fill" style="width: 72%;"></div></div>
+    </div>
+    <div class="skill-row" style="margin-bottom: 0;">
+        <div class="skill-info"><span>Web Development (Django/React)</span><span>54%</span></div>
+        <div class="progress-bg"><div class="progress-fill" style="width: 54%;"></div></div>
+    </div>
+</div>
+{% endblock %}

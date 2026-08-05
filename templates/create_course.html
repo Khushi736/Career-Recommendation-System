@@ -1,0 +1,242 @@
+{% extends "admin_base.html" %} 
+
+{% block title %}{% if is_edit %}Edit Course{% else %}Add New Course{% endif %} | Admin{% endblock %}
+
+{% block top_navbar %}{% endblock %}
+
+{% block content %}
+<style>
+    /* Page Layout & Typography */
+    .create-course-page {
+        margin-top: 20px;
+        font-family: 'Inter', system-ui, sans-serif;
+        color: #e2e8f0;
+        width: 100%;
+        max-width: 800px;
+        box-sizing: border-box;
+    }
+    
+    .create-course-page * {
+        box-sizing: inherit;
+    }
+
+    /* Header & Back Link */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #38bdf8;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        transition: color 0.2s;
+    }
+
+    .back-link:hover {
+        color: #7dd3fc;
+    }
+
+    .page-title {
+        font-size: 1.875rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin: 0 0 2rem 0;
+        line-height: 1.2;
+    }
+
+    /* Form Card Container */
+    .form-card {
+        background-color: #1e293b;
+        border-radius: 18px;
+        border: 1px solid #334155;
+        padding: 2.5rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Form Fields */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        color: #f8fafc;
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        background-color: #0f172a;
+        color: #f8fafc;
+        border: 1px solid #334155;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        outline: none;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+
+    .form-control::placeholder {
+        color: #64748b;
+    }
+
+    .form-control:focus {
+        border-color: #38bdf8;
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    /* Helper Text */
+    .form-text {
+        display: block;
+        font-size: 0.75rem;
+        color: #94a3b8;
+        margin-top: 0.5rem;
+    }
+    
+    .form-text span {
+        font-weight: 600;
+        color: #cbd5e1;
+    }
+
+    /* Action Buttons */
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2.5rem;
+    }
+
+    .btn-save {
+        background-color: #38bdf8;
+        color: #0f172a;
+        font-weight: 700;
+        padding: 0.75rem 2rem;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: background-color 0.2s;
+    }
+
+    .btn-save:hover {
+        background-color: #7dd3fc;
+    }
+
+    .btn-cancel {
+        color: #94a3b8;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.875rem;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+        color: #f8fafc;
+        background-color: rgba(255,255,255,0.05);
+    }
+</style>
+
+<div class="create-course-page">
+    
+    <a href="{{ url_for('admin_courses') }}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Courses
+    </a>
+    
+    <!-- Dynamic Title -->
+    <h1 class="page-title">{% if is_edit %}Edit Course{% else %}Create New Course{% endif %}</h1>
+
+    <div class="form-card">
+        <!-- Dynamic Form Action -->
+        <form action="{% if is_edit %}{{ url_for('edit_course', course_id=course.id) }}{% else %}{{ url_for('create_course') }}{% endif %}" method="POST">
+            
+            <div class="form-group">
+                <label for="course_title" class="form-label">Course Title</label>
+                <input 
+                    type="text" 
+                    id="course_title" 
+                    name="course_title" 
+                    class="form-control" 
+                    placeholder="e.g., PHP for Beginners" 
+                    value="{% if course %}{{ course.title }}{% endif %}"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="course_slug" class="form-label">SEO Slug (URL)</label>
+                <input 
+                    type="text" 
+                    id="course_slug" 
+                    name="course_slug" 
+                    class="form-control" 
+                    placeholder="e.g., php-for-beginners" 
+                    value="{% if course %}{{ course.slug }}{% endif %}"
+                    required
+                >
+                <span class="form-text">This will be the URL: yoursite.com/course/<span id="slug-preview">{% if course %}{{ course.slug }}{% else %}your-clean-slug{% endif %}</span></span>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="short_description" class="form-label">Short Description</label>
+                <!-- Textareas put the value inside the tags -->
+                <textarea 
+                    id="short_description" 
+                    name="short_description" 
+                    class="form-control" 
+                    placeholder="A brief summary of what this course covers..."
+                >{% if course %}{{ course.description }}{% endif %}</textarea>
+            </div>
+
+            <div class="form-actions">
+                <!-- Dynamic Button Text -->
+                <button type="submit" class="btn-save">{% if is_edit %}Update Course{% else %}Save Course{% endif %}</button>
+                <a href="{{ url_for('admin_courses') }}" class="btn-cancel">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const titleInput = document.getElementById('course_title');
+        const slugInput = document.getElementById('course_slug');
+        const slugPreview = document.getElementById('slug-preview');
+
+        // Function to create a URL-friendly slug
+        function slugify(text) {
+            return text.toString().toLowerCase()
+                .replace(/\s+/g, '-')           // Replace spaces with -
+                .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+                .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+                .replace(/^-+/, '')             // Trim - from start of text
+                .replace(/-+$/, '');            // Trim - from end of text
+        }
+
+        {% if not is_edit %}
+        // ONLY auto-fill slug if we are creating a new course
+        titleInput.addEventListener('input', function() {
+            const newSlug = slugify(this.value);
+            slugInput.value = newSlug;
+            slugPreview.textContent = newSlug || 'your-clean-slug';
+        });
+        {% endif %}
+
+        // Always update preview if they manually edit the slug field
+        slugInput.addEventListener('input', function() {
+            slugPreview.textContent = this.value || 'your-clean-slug';
+        });
+    });
+</script>
+{% endblock %}

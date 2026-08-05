@@ -1,0 +1,249 @@
+{% extends "base.html" %} <!-- Change this if your base template has a different name -->
+
+{% block title %}My Courses | SmartCareerAI{% endblock %}
+
+{% block content %}
+<style>
+    /* --- Main Container Styling --- */
+    .user-courses-container {
+        font-family: 'Inter', system-ui, sans-serif;
+        color: #e2e8f0;
+        padding: 1rem;
+        width: 100%; /* Ensures it doesn't overflow */
+        box-sizing: border-box; /* Includes padding in width calculation */
+        max-width: 1000px;
+        margin: 0 auto; /* Centers the content */
+    }
+
+    /* --- Page Header (Matches Roadmap Header) --- */
+    .page-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2dd4bf; /* Teal accent */
+        margin-bottom: 0.5rem;
+    }
+    
+    .page-subtitle {
+        color: #94a3b8;
+        font-size: 0.875rem;
+        margin-bottom: 2rem;
+    }
+
+    /* --- List Layout --- */
+    .course-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        width: 100%;
+    }
+
+    /* --- Individual Course Card (Matches Roadmap Cards) --- */
+    .course-card-list {
+        background-color: rgba(255, 255, 255, 0.03); /* Subtle translucent background */
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.2s, background-color 0.2s;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .course-card-list:hover {
+        background-color: rgba(255, 255, 255, 0.06);
+        transform: translateX(4px); /* Slight bump to the right on hover */
+    }
+
+    /* --- Card Left Side (Text) --- */
+    .course-info {
+        flex: 1;
+        padding-right: 2rem;
+        min-width: 0; /* Prevents flex children from overflowing */
+    }
+
+    .course-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .course-desc {
+        color: #94a3b8;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        margin: 0 0 1rem 0;
+        /* Truncates text to 2 lines so cards stay uniform */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .course-meta {
+        font-size: 0.75rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap; /* Allows wrapping on very small screens */
+        gap: 1.5rem;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    /* --- Card Right Side (Buttons/Badges) --- */
+    .course-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 1rem;
+        min-width: 140px;
+    }
+
+    /* The 'X% Match' badge styling */
+    .match-badge {
+        background-color: #007bff; /* Vibrant Blue */
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.75rem;
+        padding: 0.35rem 1rem;
+        border-radius: 999px;
+        display: inline-block;
+    }
+
+    /* Outline Button for "Start Learning" */
+    .btn-start {
+        background-color: transparent;
+        color: #007bff;
+        border: 1px solid #007bff;
+        font-weight: 600;
+        font-size: 0.875rem;
+        padding: 0.5rem 1.25rem;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.2s;
+        text-align: center;
+        width: 100%;
+        display: block; /* Ensures the a tag fills the width */
+        box-sizing: border-box;
+    }
+
+    .btn-start:hover {
+        background-color: #007bff;
+        color: #ffffff;
+    }
+
+    /* --- Empty State Styling --- */
+    .empty-state {
+        text-align: center;
+        padding: 4rem;
+        color: #64748b;
+        background-color: rgba(255, 255, 255, 0.02);
+        border: 1px dashed rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .empty-state h3 {
+        color: #f8fafc;
+        margin-bottom: 0.5rem;
+    }
+
+    /* --- OVERHAULED RESPONSIVE FIXES --- */
+    @media (max-width: 768px) {
+        .user-courses-container {
+            padding: 1rem 0.5rem; /* Slight padding adjustment for mobile */
+        }
+        
+        .course-card-list {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 1.25rem;
+        }
+        
+        .course-info {
+            padding-right: 0;
+            margin-bottom: 1.5rem;
+            width: 100%; /* Forces text to stay inside boundaries */
+        }
+        
+        .course-actions {
+            align-items: stretch; /* Stretches the children to fill the container */
+            width: 100%; /* Takes full width of the card */
+            gap: 0.75rem;
+        }
+        
+        .btn-start {
+            width: 100%; /* Better touch target on mobile */
+        }
+    }
+</style>
+
+<div class="user-courses-container">
+    <div class="page-header">
+        <i class="fas fa-sparkles"></i> Courses
+    </div>
+    <div class="page-subtitle">Explore our comprehensive collection of professional courses designed to advance your skills.</div>
+
+    <div class="course-list">
+        
+        <!-- 100% DYNAMIC LOOP based on the 'courses' variable passed from app.py -->
+        {% if courses and courses|length > 0 %}
+            {% for course in courses %}
+            <div class="course-card-list">
+                
+                <div class="course-info">
+                    <!-- Dynamic Title and Description -->
+                    <h3 class="course-title">{{ course.title }}</h3>
+                    <p class="course-desc">{{ course.description }}</p>
+                    
+                    <div class="course-meta">
+                        <!-- Dynamic Chapter Count fetched by the subquery in app.py -->
+                        <div class="meta-item">
+                            <i class="fas fa-layer-group"></i> 
+                            {{ course.chapter_count }} Chapters
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-clock"></i> Self-paced
+                        </div>
+                    </div>
+                </div>
+
+                <div class="course-actions">
+                    <!-- Fake dynamic match percentage to simulate AI recommendation -->
+
+                    
+                    <!-- Dynamic URL linking to the specific course viewer -->
+                    <a href="{{ url_for('view_course', course_id=course.id) }}" class="btn-start">Start Learning</a>
+                </div>
+
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- DYNAMIC EMPTY STATE: Shows ONLY if no courses exist in the database -->
+            <div class="empty-state">
+                <i class="fas fa-book-open"></i>
+                <h3>No Courses Available Yet</h3>
+                <p>Check back later for new learning materials curated for your career path.</p>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

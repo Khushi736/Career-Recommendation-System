@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Register</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    /* Reset */
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    }
+
+    /* CARD */
+    .register-box {
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(15px);
+        padding: 30px 40px; 
+        border-radius: 20px;
+        width: 450px; 
+        text-align: center;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+
+    .register-box h2 {
+        margin-bottom: 20px;
+        color: #fff;
+        font-size: 24px;
+    }
+
+    /* INPUTS */
+    .register-box input {
+        width: 100%;
+        padding: 12px 15px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 8px;
+        outline: none;
+        font-family: 'Poppins', sans-serif;
+        font-size: 14px;
+        transition: border 0.3s, color 0.3s; /* Makes the red/green fade in smoothly */
+    }
+
+    /* NAME ROW */
+    .name-row {
+        display: flex;
+        gap: 12px; 
+    }
+
+    /* PASSWORD CONTAINER */
+    .password-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .password-container input {
+        padding-right: 40px;
+    }
+
+    .password-container i {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+
+    .password-container i:hover {
+        color: #00c6ff;
+    }
+
+    /* --- UPDATED: Real-Time Validation Colors --- */
+    
+    /* When the email OR password is WRONG (and not empty) */
+    .register-box input[type="email"]:not(:placeholder-shown):invalid,
+    #password:not(:placeholder-shown):invalid,
+    #confirm_password:not(:placeholder-shown):invalid {
+        color: #ff4d4d;
+        border: 1px solid #ff4d4d;
+    }
+
+    /* When the email OR passwords are CORRECT */
+    .register-box input[type="email"]:not(:placeholder-shown):valid,
+    #password:not(:placeholder-shown):valid,
+    #confirm_password:not(:placeholder-shown):valid {
+        color: #00E676;
+        border: 1px solid #00E676;
+    }
+
+    /* BUTTON */
+    .register-box button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 15px;
+        border: none;
+        border-radius: 8px;
+        background: linear-gradient(135deg,#00c6ff,#0072ff);
+        color: white;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .register-box button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0, 198, 255, 0.4);
+    }
+
+    .register-box p {
+        color: #ccc;
+        margin-top: 20px;
+        margin-bottom: 0;
+        font-size: 14px;
+    }
+
+    .register-box a {
+        color: #00c6ff;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .register-box a:hover {
+        text-decoration: underline;
+    }
+</style>
+</head>
+
+<body>
+
+<form class="register-box" method="POST">
+
+    <h2>🛠 Admin Register</h2>
+
+    <div class="name-row">
+        <input type="text" name="first_name" placeholder="First Name" required>
+        <input type="text" name="last_name" placeholder="Last Name" required>
+    </div>
+
+    <input type="email" name="email" placeholder="Enter Gmail Address" 
+           pattern="^[a-zA-Z0-9._%+\-]+@gmail\.com$" 
+           title="You must use a valid @gmail.com address" 
+           required>
+
+    <div class="password-container">
+        <input type="password" name="password" id="password" placeholder="Enter Password" 
+               pattern="(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':&quot;\\|,.<>\/?~]).{8,}"
+               title="Must be at least 8 characters, include a number, and a special character"
+               required>
+        <i class="fa-solid fa-eye" id="togglePassword"></i>
+    </div>
+
+    <div class="password-container">
+        <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required>
+        <i class="fa-solid fa-eye" id="toggleConfirmPassword"></i>
+    </div>
+
+    <button type="submit">Register</button>
+
+    <p>Already Admin? <a href="/admin/login">Login</a></p>
+
+</form>
+
+<script>
+    // --- 1. EYE ICON FUNCTIONALITY ---
+    
+    // Main Password
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+
+    togglePassword.addEventListener('click', function () {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+
+    // Confirm Password
+    const toggleConfirmPassword = document.querySelector('#toggleConfirmPassword');
+    const confirmPassword = document.querySelector('#confirm_password');
+
+    toggleConfirmPassword.addEventListener('click', function () {
+        const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+        confirmPassword.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+
+
+    // --- 2. PASSWORD MATCHING VALIDATION ---
+    
+    // Function to check if passwords match
+    function validatePassword() {
+        if (password.value !== confirmPassword.value) {
+            // They don't match: trigger the red border and set a custom error message
+            confirmPassword.setCustomValidity("Passwords do not match");
+        } else {
+            // They match: clear the error, triggering the green border
+            confirmPassword.setCustomValidity('');
+        }
+    }
+
+    // Check for a match every time the user types in either box
+    password.addEventListener('input', validatePassword);
+    confirmPassword.addEventListener('input', validatePassword);
+</script>
+
+</body>
+</html>

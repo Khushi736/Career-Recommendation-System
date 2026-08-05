@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Login</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #1c92d2);
+        background-size: 400% 400%;
+        animation: gradientBG 10s ease infinite;
+    }
+
+    @keyframes gradientBG {
+        0% {background-position: 0% 50%;}
+        50% {background-position: 100% 50%;}
+        100% {background-position: 0% 50%;}
+    }
+
+    .login-box {
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(15px);
+        padding: 40px;
+        border-radius: 20px;
+        width: 400px; /* Slightly wider for better alignment */
+        text-align: center;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+
+    .login-box h2 {
+        margin-bottom: 20px;
+        color: #fff;
+    }
+
+    .login-box input {
+        width: 100%;
+        padding: 12px 15px;
+        margin: 10px 0 5px 0;
+        border: none;
+        border-radius: 8px;
+        outline: none;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    /* PASSWORD CONTAINER */
+    .password-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .password-container input {
+        padding-right: 40px;
+    }
+
+    .password-container i {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+        cursor: pointer;
+    }
+
+    /* FORGOT PASSWORD LINK */
+    .forgot-password {
+        text-align: right;
+        margin-bottom: 15px;
+    }
+
+    .forgot-password a {
+        color: #00c6ff;
+        font-size: 13px;
+        text-decoration: none;
+    }
+
+    .forgot-password a:hover {
+        text-decoration: underline;
+    }
+
+    .login-box button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        background: linear-gradient(135deg,#00c6ff,#0072ff);
+        color: white;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .login-box button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0, 198, 255, 0.4);
+    }
+
+    .login-box p {
+        color: #ccc;
+        margin-top: 20px;
+        font-size: 14px;
+    }
+
+    .login-box p a {
+        color: #00c6ff;
+        text-decoration: none;
+    }
+</style>
+</head>
+<body>
+
+<form class="login-box" method="POST">
+    <h2>🔐 Admin Login</h2>
+    
+    <input type="email" name="email" placeholder="Enter Email" required>
+    
+    <div class="password-container">
+        <input type="password" name="password" id="password" placeholder="Enter Password" required>
+        <i class="fa-solid fa-eye" id="togglePassword"></i>
+    </div>
+
+    <div class="forgot-password">
+        <a href="/admin/forgot-password">Forgot Password?</a>
+    </div>
+
+    <button type="submit">Login</button>
+    
+    <p>New Admin? <a href="/admin/register">Register</a></p>
+</form>
+
+<script>
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+    togglePassword.addEventListener('click', function () {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+</script>
+
+</body>
+</html>

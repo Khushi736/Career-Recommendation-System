@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard | Smart Career AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    body {
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        color: white;
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    /* --- LEFT SIDEBAR --- */
+    .left-sidebar {
+        width: 260px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(15px);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        flex-direction: column;
+        padding: 30px 20px;
+        box-sizing: border-box;
+    }
+
+    .left-sidebar .logo {
+        font-size: 24px;
+        margin-bottom: 40px;
+        text-align: center;
+        letter-spacing: 1px;
+    }
+
+    .left-sidebar a {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        padding: 12px 15px;
+        margin-bottom: 8px;
+        border-radius: 10px;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+    }
+
+    .left-sidebar a:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        transform: translateX(5px);
+    }
+
+    .sidebar-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        margin: 20px 0;
+    }
+
+    /* --- MAIN CONTENT WRAPPER --- */
+    .main-wrapper {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    /* --- HEADER --- */
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 40px;
+        background: transparent;
+    }
+
+    .profile-circle {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00c6ff, #0072ff);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: 600;
+        font-size: 18px;
+        cursor: pointer;
+        margin-left: auto;
+        box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
+        transition: 0.3s;
+        overflow: hidden;
+    }
+
+    /* --- PROFILE SIDEBAR --- */
+    .profile-sidebar {
+        position: absolute;
+        top: 0;
+        right: -320px;
+        width: 300px;
+        height: 100%;
+        background: rgba(15, 32, 39, 0.98);
+        backdrop-filter: blur(20px);
+        border-left: 1px solid rgba(255, 255, 255, 0.1);
+        transition: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        padding: 60px 30px;
+        box-sizing: border-box;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .profile-sidebar.active { right: 0; }
+
+    .profile-sidebar h3 {
+        text-align: center;
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: white;
+    }
+
+    .profile-sidebar .membership-tag {
+        text-align: center;
+        font-size: 12px;
+        color: #00c6ff;
+        display: block;
+        margin-bottom: 40px;
+    }
+
+    .profile-sidebar a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        padding: 12px 0;
+        font-size: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        transition: 0.3s;
+    }
+
+    .profile-sidebar a:hover {
+        color: white;
+        padding-left: 8px;
+    }
+
+    .sign-out-btn {
+        color: #ff4b4b !important;
+        margin-top: auto;
+        font-weight: 500;
+        border-bottom: none !important;
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 20px;
+        right: 25px;
+        font-size: 28px;
+        cursor: pointer;
+        color: rgba(255,255,255,0.6);
+    }
+
+    /* --- RECOMMENDATION BOX CONTAINER --- */
+    .recommendation-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 32px;
+        margin-top: 60px;
+        width: 100%;
+        max-width: 950px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-sizing: border-box;
+    }
+
+    .career-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: 0.3s;
+    }
+
+    .career-item:hover {
+        background: rgba(255, 255, 255, 0.07);
+        transform: translateY(-2px);
+    }
+
+    .match-badge {
+        background: linear-gradient(135deg, #00c6ff, #0072ff);
+        color: white;
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .step-pill {
+        font-size: 12px;
+        background: rgba(0, 198, 255, 0.1);
+        border: 1px solid rgba(0, 198, 255, 0.2);
+        color: #00c6ff;
+        padding: 4px 12px;
+        border-radius: 6px;
+    }
+
+    /* --- RESPONSIVE CSS FIXES --- */
+    @media (max-width: 768px) {
+        body {
+            flex-direction: column;
+            height: auto;
+            overflow-y: auto;
+        }
+
+        .left-sidebar {
+            width: 100%;
+            padding: 20px 15px;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            border-right: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .left-sidebar .logo {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .left-sidebar a {
+            margin-bottom: 0;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .sidebar-divider {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .main-wrapper {
+            overflow-y: visible; /* Allows the body to handle scrolling instead */
+        }
+
+        .header {
+            padding: 20px !important;
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .header h2 {
+            font-size: 24px !important; /* Overrides inline 32px font on mobile */
+        }
+
+        .profile-circle {
+            margin-left: 0; /* Centers the profile icon when header stacks */
+        }
+
+        /* Overrides the inline style padding on the content container safely */
+        .main-wrapper > div:not(.header):not(.profile-sidebar) {
+            padding: 0 20px 30px 20px !important; 
+        }
+
+        .action-card, .recommendation-card {
+            padding: 20px !important;
+        }
+
+        .profile-sidebar {
+            width: 100%;
+            right: -100%;
+        }
+
+        /* Prevent button overlap or clipping on very small screens */
+        .action-card > div:last-child {
+            flex-direction: column;
+            justify-content: center !important;
+            gap: 15px !important;
+            text-align: center;
+        }
+
+        .action-card > div:last-child button, 
+        .action-card > div:last-child span {
+            width: 100%;
+            box-sizing: border-box;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<nav class="left-sidebar">
+    <div class="logo"><b>SmartCareerAI</b></div>
+    <a href="{{ url_for('dashboard') }}">Home</a>
+    <a href="{{ url_for('profile') }}">Profile</a>
+    <a href="{{ url_for('ats') }}">ATS Checker</a>
+    <a href="{{ url_for('user_courses') }}">Courses</a>
+    <div class="sidebar-divider"></div>
+    <a href="{{ url_for('faq') }}">FAQs</a>
+    <a href="{{ url_for('terms') }}">Terms</a>
+    <a href="{{ url_for('privacy') }}">Privacy</a>
+</nav>
+
+<div class="main-wrapper">
+    <header class="header">
+        <h2 style="font-size: 32px; font-weight: 700; color: #ffffff; margin: 0;">
+            Welcome to Our Platform
+        </h2>
+        <div class="profile-circle" onclick="toggleProfileSidebar()">
+            {% if current_user.profile_pic %}
+                <img src="{{ current_user.profile_pic }}" alt="Profile" style="width:100%; height:100%; object-fit:cover;">
+            {% else %}
+                {{ current_user.name[0] | upper if current_user.name else 'U' }}
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="profile-sidebar" id="profileSidebar">
+        <div class="close-btn" onclick="toggleProfileSidebar()">×</div>
+        
+        <div class="profile-info">
+            <h3>{{ current_user.name | default('User Name') }}</h3>
+            <span class="membership-tag">Free Member</span>
+        </div>
+
+        
+        <a href="{{ url_for('profile') }}">Your Profile</a>
+        <a href="{{ url_for('faq') }}">FAQs</a>
+        <a href="{{ url_for('privacy') }}">Privacy</a>
+        
+        <a href="{{ url_for('logout') }}" class="sign-out-btn">Sign Out</a>
+    </div>
+    
+    <div style="padding: 0 40px 40px 40px;">
+        <p style="color: #d1d5db; max-width: 850px; margin-bottom: 20px; line-height: 1.6; font-size: 16px; text-align: justify;">
+            Empower your professional journey with AI-driven insights tailored to your unique goals.
+            Our platform analyzes your skilss and interests to recommend ideal career paths. Optimize
+            your resume with our advanced ATS Checker, validate your expertise interactive skill Assessments, 
+            and bridge any knowledge gaps with our curated Courses.
+        </p>
+
+        
+
+        <div class="recommendation-card">
+            <h3 style="color: #00ffcc; font-size: 20px; font-weight: 600; margin-bottom: 5px;">✨ Personalized Career Roadmap</h3>
+            <p style="font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 25px;">
+                Real-time analysis based on your profile and uploaded CV.
+            </p>
+
+            <div class="career-list">
+                {% if recommended_careers %}
+                    {% for career in recommended_careers %}
+                    <div class="career-item">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <span style="font-size: 18px; font-weight: 600; color: #fff;">{{ career.title }}</span>
+                            <span class="match-badge">{{ career.match_percentage }}% Match</span>
+                        </div>
+                        
+                        
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.3);">
+                        <p>No recommendations yet. Update your skills or upload a CV to begin.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleProfileSidebar() {
+    document.getElementById("profileSidebar").classList.toggle("active");
+}
+
+let skillsList = ['JavaScript', 'React', 'Figma'];
+let interestsList = ['Coding', 'Designing', 'Reading'];
+
+function renderTags(containerId, dataArray, removeFuncName) {
+    const container = document.getElementById(containerId);
+    if(!container) return;
+    container.innerHTML = ''; 
+    dataArray.forEach((item, index) => {
+        container.innerHTML += `
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#eef2ff] text-[#4f46e5] font-medium text-sm">
+                ${item}
+                <button type="button" onclick="${removeFuncName}(${index})" class="hover:text-red-500 font-bold">&times;</button>
+            </span>
+        `;
+    });
+}
+
+function addSkill() {
+    const input = document.getElementById('skillInput');
+    if(input.value.trim() && !skillsList.includes(input.value.trim())) {
+        skillsList.push(input.value.trim());
+        input.value = '';
+        updateUI();
+    }
+}
+
+function addInterest() {
+    const input = document.getElementById('interestInput');
+    if(input.value.trim() && !interestsList.includes(input.value.trim())) {
+        interestsList.push(input.value.trim());
+        input.value = '';
+        updateUI();
+    }
+}
+
+function removeSkill(index) { skillsList.splice(index, 1); updateUI(); }
+function removeInterest(index) { interestsList.splice(index, 1); updateUI(); }
+
+function resetAll() {
+    skillsList = [];
+    interestsList = [];
+    updateUI();
+}
+
+function applyChanges() {
+    alert("Changes Applied Successfully!");
+}
+
+function updateUI() {
+    renderTags('skillsContainer', skillsList, 'removeSkill');
+    renderTags('interestsContainer', interestsList, 'removeInterest');
+}
+
+document.getElementById('skillInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') addSkill(); });
+document.getElementById('interestInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') addInterest(); });
+
+window.onload = updateUI;
+</script>
+
+</body>
+</html>

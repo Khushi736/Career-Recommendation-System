@@ -1,0 +1,389 @@
+{% extends "base.html" %} 
+
+{% block title %}{% if current_chapter %}{{ current_chapter.title }}{% else %}Course{% endif %} | SmartCareerAI{% endblock %}
+
+{% block content %}
+
+<style>
+    /* --- Main Layout Colors (Silver/Teal Theme) --- */
+    :root {
+        --body-bg:rgba(255, 255, 255, 0.03);       /* Deep Teal-Grey Background */
+        --card-bg:rgba(255, 255, 255, 0.08);       /* Lighter Teal-Grey Card */
+        --accent-teal: #40e0d0;   /* Bright Teal for Headings */
+        --text-silver: #c9d1d3;   /* Soft Silver for Body Text */
+        --text-white: #ffffff;    /* Pure White for Main Titles */
+        --border-color: #96d9e8;  /* Subtle Divider Color */
+    }
+
+    body {
+        background-color: var(--body-bg) !important;
+    }
+
+    .focused-learning-layout {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+        color: var(--text-silver);
+        font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    /* --- Navigation & Header --- */
+    .back-nav {
+        margin-bottom: 1.5rem;
+    }
+    
+    .back-link {
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: color 0.2s;
+    }
+    
+    .back-link:hover {
+        color: var(--accent-teal);
+    }
+
+    /* --- Main Reading Card --- */
+    .course-main-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 4rem; 
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .chapter-header {
+        margin-bottom: 2.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .chapter-title {
+        font-size: 2.5rem;
+        font-weight: 600;
+        color: var(--text-white);
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    /* --- Rich Text / CKEditor Content Styles --- */
+    .markdown-content { font-size: 1.1rem; } 
+    .markdown-content h2 { color: var(--accent-teal); margin-top: 3rem; margin-bottom: 1rem; font-size: 1.8rem; }
+    .markdown-content h3 { color: var(--text-white); margin-top: 2rem; margin-bottom: 0.75rem; font-size: 1.4rem;}
+    .markdown-content p { line-height: 1.8; color: var(--text-silver); margin-bottom: 1.5rem; }
+    
+    /* --- FORCED LIST STYLES (BOXED LAYOUT) --- */
+    .markdown-content ul { 
+        list-style-type: disc !important; 
+        background-color: rgba(0, 0, 0, 0.2); /* Creates the distinct box background */
+        padding: 1.5rem 1.5rem 1.5rem 3rem !important; /* Space inside the box, extra left space for bullets */
+        border-radius: 12px; /* Rounded corners */
+        border: 1px solid rgba(150, 217, 232, 0.15); /* Subtle border matching your theme */
+        margin-bottom: 2rem; 
+        color: var(--text-silver);
+    }
+    .markdown-content ol { 
+        list-style-type: decimal !important; 
+        background-color: rgba(0, 0, 0, 0.2); 
+        padding: 1.5rem 1.5rem 1.5rem 3rem !important; 
+        border-radius: 12px;
+        border: 1px solid rgba(150, 217, 232, 0.15);
+        margin-bottom: 2rem; 
+        color: var(--text-silver);
+    }
+    .markdown-content li {
+        display: list-item !important; 
+        margin-bottom: 1rem; /* Spacing between the list items */
+        line-height: 1.8;
+    }
+    .markdown-content li:last-child {
+        margin-bottom: 0; /* Removes extra space after the last item in the box */
+    }
+
+    /* --- HIGHLIGHTED BOLD TERMS --- */
+    .markdown-content strong, .markdown-content b { 
+        background-color: rgba(64, 224, 208, 0.15) !important; 
+        padding: 0.2rem 0.4rem; 
+        border-radius: 0.25rem; 
+        color: var(--accent-teal) !important; 
+        font-weight: 600; 
+        display: inline-block;
+        line-height: 1.2;
+    }
+    
+    /* --- CODE & BACKGROUNDS --- */
+    .markdown-content code { 
+        background-color: rgba(64, 224, 208, 0.15) !important; 
+        padding: 0.2rem 0.4rem; 
+        border-radius: 0.25rem; 
+        font-family: monospace; 
+        color: var(--accent-teal); 
+        font-size: 0.9em; 
+    }
+    .markdown-content pre { 
+        background-color: rgba(0, 0, 0, 0.25) !important; 
+        padding: 1.5rem; 
+        border-radius: 0.5rem; 
+        overflow-x: auto; 
+        margin-bottom: 2rem; 
+        border: 1px solid var(--border-color); 
+
+        white-space: pre-wrap; /* Forces long lines to wrap inside the box */
+        word-break: normal; /* Fixed: Allows normal word wrapping without breaking syntax */
+        overflow-wrap: break-word; /* Fixed: Prevents long unbroken text from overflowing gracefully */
+    }
+    .markdown-content pre code { 
+        background-color: transparent !important; 
+        color: #a5b4fc; 
+        padding: 0; 
+    }
+    
+    /* Blockquotes */
+    .markdown-content blockquote { 
+        border-left: 4px solid var(--accent-teal); 
+        background-color: rgba(255, 255, 255, 0.03); 
+        margin: 0 0 1.5rem 0; 
+        padding: 1rem 1.5rem; 
+        font-style: italic; 
+        color: var(--text-silver);
+        border-radius: 0 8px 8px 0;
+    }
+    /* --- TABLE STYLES (BOXED & GRID LAYOUT) --- */
+    .markdown-content table {
+        width: 100%;
+        border-collapse: collapse; /* Prevents double borders */
+        margin-bottom: 2rem;
+        background-color: rgba(0, 0, 0, 0.2); /* Matches your list and pre boxes */
+        border-radius: 12px; /* Matches your list corners */
+        border-style: hidden; /* Hides outer border so rounded corners work perfectly */
+        box-shadow: 0 0 0 1px rgba(150, 217, 232, 0.15); /* Creates the outer border seamlessly */
+    }
+
+    .markdown-content th, 
+    .markdown-content td {
+        padding: 1rem 1.5rem;
+        text-align: center; /* Centers the Python keywords nicely */
+        color: var(--text-silver); /* Matches your paragraph text */
+        border: 1px solid rgba(150, 217, 232, 0.15); /* Matches your inner list/resource borders */
+    }
+
+    .markdown-content th {
+        background-color: rgba(64, 224, 208, 0.05); /* Subtle teal background for headers if you ever use them */
+        color: var(--accent-teal);
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    /* Subtle hover effect for the rows to make the grid feel interactive */
+    .markdown-content tbody tr:hover {
+        background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    /* --- Resources --- */
+    .resource-section {
+        background-color: rgba(64, 224, 208, 0.05);
+        border: 1px solid rgba(64, 224, 208, 0.2);
+        border-radius: 8px;
+        padding: 2rem;
+        margin-top: 3rem;
+    }
+    
+    .resource-title {
+        color: var(--accent-teal);
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .btn-download {
+        background-color: var(--accent-teal);
+        color: #0f172a;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-weight: 700;
+        transition: opacity 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-download:hover { opacity: 0.9; }
+
+    /* --- Quiz Section --- */
+    .quiz-section { 
+        margin-top: 4rem; 
+        padding-top: 3rem; 
+        border-top: 1px solid var(--border-color); 
+    }
+    
+    .quiz-card { 
+        background: #1a2a2e; 
+        border: 1px solid var(--border-color); 
+        padding: 2rem; 
+        border-radius: 12px; 
+        margin-bottom: 1.5rem; 
+    }
+    
+    .quiz-option { 
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.25rem; 
+        background: var(--card-bg); 
+        border: 1px solid var(--border-color); 
+        border-radius: 8px; 
+        margin-bottom: 0.75rem; 
+        cursor: pointer; 
+        color: var(--text-silver);
+    }
+    
+    .quiz-option:hover { 
+        border-color: var(--accent-teal); 
+        background: rgba(64, 224, 208, 0.05); 
+    }
+
+    @media (max-width: 768px) {
+        .course-main-card { padding: 2rem 1.5rem; }
+        .chapter-title { font-size: 2rem; }
+    }
+</style>
+
+<div class="focused-learning-layout">
+    
+    <div class="back-nav">
+        <a href="{{ url_for('lesson_course', course_id=course.id) }}" class="back-link">
+            ← Back to {{ course.title }} Curriculum
+        </a>
+    </div>
+
+    <main class="course-main-card">
+        {% if current_chapter %}
+            
+            <div class="chapter-header">
+                <h1 class="chapter-title">{{ current_chapter.title }}</h1>
+            </div>
+
+            <div class="markdown-content">
+                {{ current_chapter.content | safe }}
+            </div>
+
+            {% if current_chapter.practice_set or current_chapter.download_file %}
+            <div class="resource-section">
+                <h3 class="resource-title"><i class="fas fa-laptop-code"></i> Practice Set</h3>
+                
+                {% if current_chapter.practice_set %}
+                    <div style="color: var(--text-silver); line-height: 1.7; margin-bottom: 1rem;">
+                        <!-- FIX 1: Added replace to fix the spacing issue -->
+                        {{ current_chapter.practice_set | replace('\n', '<br>') | safe }}
+                    </div>
+                {% endif %}
+
+                {% if current_chapter.download_file %}
+                    <!-- FIX 2: Added actual Flask routing and target="_blank" -->
+                    <a href="{{ url_for('static', filename='uploads/' + current_chapter.download_file) }}" target="_blank" class="btn-download">
+                        <i class="fas fa-download"></i> 
+                        {{ current_chapter.download_label|default('Download Files') }}
+                    </a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if quiz_questions and quiz_questions|length > 0 %}
+            <div class="quiz-section">
+                <h2 style="font-size: 2rem; margin-top: 0; margin-bottom: 1.5rem; color: var(--text-white);">
+                    <i class="fas fa-tasks" style="color: var(--accent-teal); font-size:1.5rem; margin-right: 0.5rem;"></i> Quiz
+                </h2>
+                
+                <!-- Removed the form submission and onsubmit event entirely -->
+                <div id="realTimeQuizContainer">
+                    
+                    {% for q in quiz_questions %}
+                    <div class="quiz-card" id="card_{{ q.id }}" data-correct="{{ q.correct_answer }}" style="background-color: #263c45; border: 1px solid #3b5b68; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                        
+                        <div class="quiz-question" style="color: white; margin-bottom: 15px; font-size: 1.1em;">
+                            {{ loop.index }}. {{ q.question }}
+                        </div>
+                        
+                        <div class="options-container">
+                            <!-- Create a list of letters to use for the options -->
+                            {% set letters = ['A', 'B', 'C', 'D'] %}
+                            
+                            {% for option in q.options %}
+                            <label class="quiz-option" style="display: flex; align-items: center; background-color: #1e3038; border: 1px solid #3b5b68; border-radius: 5px; padding: 12px; margin-bottom: 10px; cursor: pointer; color: #e0e6ed; transition: 0.2s;">
+                                
+                                <!-- 1. Hide the default radio button using display: none -->
+                                <input type="radio" name="q_{{ q.id }}" value="{{ option }}" style="display: none;" onchange="evaluateSingleQuestion(this, '{{ q.id }}')"> 
+                                
+                                <!-- 2. The Custom Letter Box (A, B, C, D) -->
+                                <span class="option-letter" style="display: inline-block; min-width: 28px; height: 28px; line-height: 28px; text-align: center; border-radius: 4px; background-color: #17242a; border: 1px solid #3b5b68; margin-right: 15px; font-weight: bold; color: #4fb3b3; font-size: 0.9em;">
+                                    {{ letters[loop.index0] }}
+                                </span>
+                                
+                                <!-- 3. The Option Text -->
+                                <span style="flex-grow: 1;">{{ option }}</span>
+                                
+                            </label>
+                            {% endfor %}
+                        </div>
+                        
+                        <div id="feedback_{{ q.id }}" style="display: none; margin-top: 15px; padding: 12px; border-radius: 4px; font-size: 0.9em;"></div>
+                        
+                    </div>
+                    {% endfor %}
+                    
+                </div>
+            </div>
+            {% endif %}
+            
+
+        {% else %}
+            <div style="text-align: center; padding: 4rem 0;">
+                <i class="fas fa-tools" style="font-size: 3rem; color: #475569; margin-bottom: 1.5rem;"></i>
+                <h2 style="color: var(--text-white); font-size: 2rem; margin-top: 0;">Content Under Development</h2>
+                <p style="color: var(--text-silver); font-size: 1.1rem;">The instructor is still building this module. Check back soon!</p>
+            </div>
+        {% endif %}
+    </main>
+</div>
+<script>
+function evaluateSingleQuestion(radioInput, questionId) {
+    const card = document.getElementById('card_' + questionId);
+    const correctAnswer = card.getAttribute('data-correct');
+    const feedbackDiv = document.getElementById('feedback_' + questionId);
+    const selectedValue = radioInput.value;
+
+    // Reset all label borders in this specific card to default
+    const allLabels = card.querySelectorAll('.quiz-option');
+    allLabels.forEach(label => {
+        label.style.borderColor = '#3b5b68';
+    });
+
+    // Get the parent label of the clicked radio button to highlight it
+    const parentLabel = radioInput.closest('.quiz-option');
+
+    // Evaluate the answer
+    if (selectedValue === correctAnswer) {
+        // Correct styling
+        feedbackDiv.style.display = 'block';
+        feedbackDiv.style.backgroundColor = '#17242a';
+        feedbackDiv.style.color = '#4caf50'; // Success green text
+        feedbackDiv.style.borderLeft = '4px solid #4caf50';
+        feedbackDiv.innerHTML = '✅ Correct!';
+        
+        // Highlight the selected option box green
+        parentLabel.style.borderColor = '#4caf50'; 
+    } else {
+        // Incorrect styling
+        feedbackDiv.style.display = 'block';
+        feedbackDiv.style.backgroundColor = '#17242a';
+        feedbackDiv.style.color = '#f44336'; // Error red text
+        feedbackDiv.style.borderLeft = '4px solid #f44336';
+        feedbackDiv.innerHTML = `❌ Incorrect. The correct answer is: <strong>${correctAnswer}</strong>`;
+        
+        // Highlight the selected option box red
+        parentLabel.style.borderColor = '#f44336'; 
+    }
+}
+</script>
+{% endblock %}

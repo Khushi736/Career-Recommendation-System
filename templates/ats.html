@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATS Resume Scorer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+    :root {
+        /* Primary Teal from "Courses" heading */
+        --primary: #84cceb;         
+        --primary-light: rgba(79, 209, 197, 0.1); 
+        
+        /* Dark Background from dashboard */
+        --bg-color: #0f172a;        
+        
+        /* Transparent Card Background for glassmorphism */
+        --card-bg: rgba(30, 41, 59, 0.7); 
+        
+        /* Text colors for dark background */
+        --text-main: #ffffff;       
+        --text-muted: #94a3b8;      
+        
+        /* Border and Accent colors */
+        --border: rgba(255, 255, 255, 0.1);          
+        --success: #10b981;         
+        --warning: #f59e0b;         
+        --danger: #ef4444;
+        
+        /* Blue for consistency with primary actions */
+        --blue: #3b82f6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;
+    }
+
+    .container {
+        width: 100%; max-width: 800px; background: var(--card-bg);
+        border-radius: 16px; padding: 40px; border: 1px solid var(--border);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        backdrop-filter: blur(10px);
+    }
+
+    /* --- STAGE 1: UPLOAD --- */
+    #upload-section { text-align: center; }
+    .drop-zone {
+        border: 2px dashed var(--border); border-radius: 12px; padding: 60px 20px;
+        background-color: rgba(255, 255, 255, 0.03); cursor: pointer; transition: 0.2s; margin: 30px 0;
+    }
+    .drop-zone:hover { border-color: var(--primary); background-color: var(--primary-light); }
+    
+    /* Update your .btn-primary class with this code */
+
+    .btn-primary {
+        padding: 14px 32px;
+        background-color: var(--primary); /* Using #a4bcba */
+        color: #0f172a; /* Dark navy text for better contrast on bright teal */
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 700; /* Bold makes it look more professional */
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 14px 0 rgba(79, 209, 197, 0.2); /* Soft teal glow */
+    }
+
+    .btn-primary:hover {
+        background-color: #84cceb; /* Slightly deeper teal on hover */
+        transform: translateY(-1px); /* Subtle lift effect */
+        box-shadow: 0 6px 20px rgba(79, 209, 197, 0.3);
+    }
+
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+    /* --- STAGE 2: PROCESSING --- */
+    #processing-section { display: none; text-align: center; padding: 60px 0; }
+    .spinner {
+        width: 50px; height: 50px; border: 4px solid var(--border); border-top: 4px solid var(--primary);
+        border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* --- STAGE 3: RESULTS --- */
+    #results-section { display: none; }
+    .score-card {
+        display: flex; align-items: center; justify-content: space-between;
+        background: linear-gradient(to right, rgba(255,255,255,0.05), var(--primary-light));
+        padding: 30px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 30px;
+    }
+    .score-circle {
+        width: 110px; height: 110px; border-radius: 50%;
+        background: conic-gradient(var(--primary) calc(var(--score) * 1%), var(--border) 0);
+        display: flex; justify-content: center; align-items: center; position: relative;
+    }
+    .score-circle::before {
+        content: ""; position: absolute; width: 88px; height: 88px;
+        background-color: #1e293b; border-radius: 50%;
+    }
+    .score-value { position: relative; font-size: 30px; font-weight: 700; color: var(--primary); }
+
+    /* 2x2 Grid for the 4 Categories */
+    .insights-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    }
+    .insight-box {
+        background: rgba(255, 255, 255, 0.03); padding: 25px; border-radius: 12px; border: 1px solid var(--border);
+    }
+    .insight-box h3 { font-size: 15px; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; color: var(--primary); }
+    
+    ul.result-list { list-style: none; padding-left: 5px; }
+    ul.result-list li {
+        margin-bottom: 12px; 
+        font-size: 14px; 
+        display: block; 
+        color: var(--text-muted); 
+        line-height: 1.6;
+    }
+
+    .reset-btn {
+        display: block; width: 100%; text-align: center; margin-top: 30px; padding: 16px;
+        background: transparent; border: 1px solid var(--border); border-radius: 8px;
+        color: var(--text-muted); cursor: pointer; font-weight: 600;
+    }
+    .reset-btn:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
+
+    @media (max-width: 640px) { .insights-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- UPLOAD SCREEN -->
+        <div id="upload-section">
+            <h1 style="font-size: 28px; margin-bottom: 10px;">ATS Resume Analysis</h1>
+            <p style="color: var(--text-muted);">Scan your resume for impact, repetition, and ATS compatibility.</p>
+            
+            <div class="drop-zone" onclick="document.getElementById('file-input').click()">
+                <h3 style="margin-bottom: 10px;">Drag & Drop your resume</h3>
+                <p style="font-size: 14px; color: var(--text-muted);">Supports PDF or DOCX</p>
+                <input type="file" id="file-input" style="display: none;" accept=".pdf,.docx" onchange="processResume()">
+            </div>
+            
+            <button class="btn-primary" onclick="document.getElementById('file-input').click()">Upload & Analyze</button>
+        </div>
+
+        <!-- LOADING SCREEN -->
+        <div id="processing-section">
+            <div class="spinner"></div>
+            <h3 style="color: var(--primary);">Scanning Document...</h3>
+            <p style="color: var(--text-muted); margin-top: 10px;" id="status-text">Parsing layout parameters</p>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div id="results-section">
+            <div class="score-card">
+                <div>
+                    <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 5px;">Parsing Score</h2>
+                    <p style="color: var(--text-muted); font-size: 14px;">Scores above 80 indicate high compatibility.</p>
+                </div>
+                <div class="score-circle" id="score-circle" style="--score: 0;">
+                    <div class="score-value" id="score-value">0%</div>
+                </div>
+            </div>
+
+            <!-- The 4 Requested ATS Metrics -->
+            <div class="insights-grid">
+                
+                <!-- 1. ATS Parse Rate -->
+                <div class="insight-box">
+                    <h3 style="color: var(--primary);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        ATS Parse Rate
+                    </h3>
+                    <ul class="result-list" id="parse-list"></ul>
+                </div>
+
+                <!-- 2. Quantifying Impact -->
+                <div class="insight-box">
+                    <h3 style="color: var(--blue);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                        Quantifying Impact
+                    </h3>
+                    <ul class="result-list" id="impact-list"></ul>
+                </div>
+
+                <!-- 3. Repetition -->
+                <div class="insight-box">
+                    <h3 style="color: var(--warning);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                        Repetition
+                    </h3>
+                    <ul class="result-list" id="repetition-list"></ul>
+                </div>
+
+                <!-- 4. Spelling & Grammar -->
+                <div class="insight-box">
+                    <h3 style="color: var(--danger);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                        Spelling & Grammar
+                    </h3>
+                    <ul class="result-list" id="grammar-list"></ul>
+                </div>
+
+            </div>
+
+            <button class="reset-btn" onclick="location.reload()">Process Another Document</button>
+        </div>
+
+    </div>
+
+   <script>
+    function processResume() {
+        const fileInput = document.getElementById('file-input');
+        if (fileInput.files.length === 0) return;
+
+        document.getElementById('upload-section').style.display = 'none';
+        document.getElementById('processing-section').style.display = 'block';
+
+        // Fake loading text transitions for better UX
+        const steps = ["Checking Parse Rate...", "Calculating Impact...", "Analyzing Repetition...", "Finalizing Score..."];
+        let i = 0;
+        const textInterval = setInterval(() => {
+            const statusEl = document.getElementById('status-text');
+            if (statusEl) {
+                statusEl.innerText = steps[i % steps.length];
+                i++;
+            }
+        }, 800);
+
+        const formData = new FormData();
+        formData.append("resume", fileInput.files[0]);
+        
+        // API Call to Flask Backend
+        fetch("/ats", { method: "POST", body: formData })
+        .then(res => res.json())
+        .then(data => {
+            clearInterval(textInterval);
+            if (data.error) {
+                alert("Error: " + data.error);
+                location.reload();
+                return;
+            }
+            renderResults(data);
+        }).catch(err => {
+            clearInterval(textInterval);
+            console.error("Fetch error:", err);
+            alert("Connection error. Ensure your Python backend is running.");
+            location.reload();
+        });
+    }
+
+    function renderResults(data) {
+        document.getElementById('processing-section').style.display = 'none';
+        document.getElementById('results-section').style.display = 'block';
+
+        // 1. Process Parse Rate Logic
+        let parseMessages = [];
+        if (typeof data.parse_rate === 'number') {
+            // If backend sends a number (e.g. 85), generate feedback
+            if (data.parse_rate >= 80) {
+                parseMessages.push(`High readability (${data.parse_rate}%). Your layout is ATS-friendly.`);
+            } else if (data.parse_rate >= 50) {
+                parseMessages.push(`Moderate readability (${data.parse_rate}%). Avoid complex columns or tables.`);
+            } else {
+                parseMessages.push(`Low readability (${data.parse_rate}%). Use standard fonts and simple headings.`);
+            }
+        } else if (Array.isArray(data.parse_rate) && data.parse_rate.length > 0) {
+            // If backend sends an array of specific issues
+            parseMessages = data.parse_rate;
+        }
+
+        // 2. Populate lists with professional fallbacks
+        populateList("parse-list", parseMessages, "Optimize your resume structure for better parsing.");
+        populateList("impact-list", data.impact, "Add more numbers and metrics to prove your achievements.");
+        populateList("repetition-list", data.repetition, "No significant keyword repetition detected.");
+        populateList("grammar-list", data.grammar, "No major spelling or grammar issues found.");
+
+        animateScore(data.score || 0);
+    }
+
+    function populateList(elementId, itemsArray, emptyMsg) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+
+        if (itemsArray && itemsArray.length > 0) {
+            el.innerHTML = itemsArray.map(item => `<li>→ ${item}</li>`).join('');
+        } else {
+            // Displays a helpful tip if no issues/data are found
+            el.innerHTML = `<li style="opacity: 0.8; font-style: italic;">→ ${emptyMsg}</li>`;
+        }
+    }
+
+    function animateScore(finalScore) {
+        let current = 0;
+        const circle = document.getElementById('score-circle');
+        const val = document.getElementById('score-value');
+        if (!circle || !val) return;
+        
+        const timer = setInterval(() => {
+            if (current >= finalScore) {
+                clearInterval(timer);
+            } else {
+                current++;
+                circle.style.setProperty('--score', current);
+                val.innerText = current + '%';
+                
+                // Dynamic Color Transitions based on Score
+                if(current < 50) { 
+                    circle.style.background = `conic-gradient(var(--danger) calc(${current} * 1%), var(--border) 0)`; 
+                    val.style.color = 'var(--danger)'; 
+                } else if (current < 80) { 
+                    circle.style.background = `conic-gradient(var(--warning) calc(${current} * 1%), var(--border) 0)`; 
+                    val.style.color = 'var(--warning)'; 
+                } else { 
+                    circle.style.background = `conic-gradient(var(--primary) calc(${current} * 1%), var(--border) 0)`; 
+                    val.style.color = 'var(--primary)'; 
+                }
+            }
+        }, 15);
+    }
+    </script>
+</body>
+</html> 

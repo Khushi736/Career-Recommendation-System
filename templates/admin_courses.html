@@ -1,0 +1,261 @@
+{% extends "admin_base.html" %} 
+
+{% block title %}Manage Courses | Admin{% endblock %}
+
+{% block top_navbar %}{% endblock %}
+
+{% block content %}
+<style>
+    /* Base Container */
+    .admin-course-page {
+        margin-top: 20px;
+        font-family: 'Inter', system-ui, sans-serif;
+        color: #e2e8f0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .admin-course-page * {
+        box-sizing: inherit;
+    }
+
+    /* THE FIX: Flexbox Header for Left/Right Alignment */
+    .admin-course-page .page-header {
+        display: flex;
+        justify-content: space-between; /* Title on Left, Controls on Right */
+        align-items: center; /* Vertically center them */
+        margin-bottom: 2rem;
+        gap: 1rem;
+    }
+
+    .admin-course-page .page-title {
+        font-size: 1.875rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin: 0; /* Remove margin so it centers perfectly with the button */
+        line-height: 1;
+    }
+
+    /* Controls (Search & Add Button Row) */
+    .admin-course-page .controls-wrapper {
+        display: flex;
+        align-items: center; /* Aligns search and button in a perfect row */
+        gap: 1rem; /* Space between search box and button */
+    }
+
+    .admin-course-page .search-input-group {
+        position: relative;
+        width: 320px; /* Matched to your admin_base search width */
+        height: 42px;
+    }
+
+    .admin-course-page .search-icon {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        padding-left: 0.75rem;
+        display: flex;
+        align-items: center;
+        pointer-events: none;
+        color: #64748b;
+    }
+
+    .admin-course-page .search-icon svg {
+        width: 18px;
+        height: 18px;
+        min-width: 18px; 
+    }
+
+    .admin-course-page .custom-search-input {
+        width: 100%;
+        height: 100%;
+        background-color: #1e293b; /* Matched your base card-bg */
+        color: #f8fafc;
+        border: 1px solid #334155;
+        border-radius: 0.5rem;
+        padding: 0 1rem 0 2.5rem;
+        outline: none;
+        margin: 0;
+        font-size: 0.875rem;
+        transition: border-color 0.3s;
+    }
+
+    .admin-course-page .custom-search-input:focus {
+        border-color: #38bdf8;
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    /* Standalone Add Button */
+    .admin-course-page .btn-add-course {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: rgba(56, 189, 248, 0.1); /* Styled to match your theme */
+        color: #38bdf8;
+        padding: 0 1.25rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        height: 42px; /* Matches search bar exactly */
+        white-space: nowrap;
+        border: 1px solid transparent;
+    }
+
+    .admin-course-page .btn-add-course:hover {
+        background-color: #38bdf8;
+        color: #0f172a;
+    }
+
+    .admin-course-page .btn-add-course svg {
+        width: 18px;
+        height: 18px;
+        min-width: 18px;
+    }
+
+    /* Table Styles */
+    .admin-course-page .table-card {
+        background-color: #1e293b;
+        border-radius: 18px;
+        border: 1px solid #334155;
+        overflow: hidden;
+    }
+
+    .admin-course-page .table-responsive {
+        overflow-x: auto;
+    }
+
+    .admin-course-page .custom-table {
+        width: 100%;
+        text-align: left;
+        border-collapse: collapse;
+        margin: 0;
+    }
+
+    .admin-course-page .custom-table th {
+        background-color: rgba(0,0,0,0.1);
+        border-bottom: 1px solid #334155;
+        color: #94a3b8;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        padding: 20px;
+        font-weight: 600;
+    }
+
+    .admin-course-page .custom-table td {
+        padding: 18px 20px;
+        border-bottom: 1px solid #334155;
+        font-size: 0.875rem;
+        color: #e2e8f0;
+    }
+
+    /* Table Actions */
+    .admin-course-page .cell-actions { text-align: right; }
+    .admin-course-page .action-link { text-decoration: none; margin-right: 0.5rem; transition: opacity 0.2s; }
+    .admin-course-page .action-link:hover { opacity: 0.8; }
+    .admin-course-page .action-manage { color: #38bdf8; }
+    .admin-course-page .action-edit { color: #f59e0b; }
+    .admin-course-page .action-divider { color: #475569; margin-right: 0.5rem; }
+    
+    .admin-course-page .action-form { display: inline; margin: 0; padding: 0; }
+    .admin-course-page .btn-delete {
+        color: #ef4444;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
+        font-size: 0.875rem;
+        font-family: inherit;
+        font-weight: 500;
+    }
+    .admin-course-page .btn-delete:hover { text-decoration: underline; }
+
+    /* Empty State */
+    .admin-course-page .empty-state-cell { padding: 4rem 1.5rem; text-align: center; }
+    .admin-course-page .empty-state-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .admin-course-page .empty-icon { width: 48px; height: 48px; color: #475569; margin-bottom: 1rem; }
+</style>
+
+<div class="admin-course-page">
+    
+    <div class="page-header">
+        <h1 class="page-title">Manage Courses</h1>
+        
+        <div class="controls-wrapper">
+            <div class="search-input-group">
+                <div class="search-icon">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input type="text" class="custom-search-input" placeholder="Search courses...">
+            </div>
+            
+            <a href="{{ url_for('create_course') }}" class="btn-add-course" title="Add New Course">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Add New Course
+            </a>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th style="width: 6rem;">ID</th>
+                        <th>Course Title</th>
+                        <th>SEO Slug</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    {% for course in courses %}
+                    <tr>
+                        <td style="color: #94a3b8;">#{{ course['id'] }}</td>
+                        <td style="font-weight: 500;">{{ course['title'] }}</td>
+                        <td style="color: #94a3b8;">{{ course['slug'] }}</td>
+                        <td class="cell-actions">
+                            <a href="{{ url_for('manage_course', course_id=course.id) }}" class="action-link action-manage">Manage</a>
+                            <span class="action-divider">|</span>
+                            <a href="{{ url_for('edit_course', course_id=course.id) }}" class="action-link action-edit">Edit</a>
+                            <span class="action-divider">|</span>
+                            <form action="{{ url_for('delete_course', course_id=course.id) }}" method="POST" class="action-form">
+                                <button type="submit" class="btn-delete" onclick="return confirm('Delete this course?');">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="empty-state-cell">
+                            <div class="empty-state-content">
+                                <svg width="48" height="48" class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                </svg>
+                                <p style="color: #94a3b8;">No courses found. Click "Add New Course" to get started.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

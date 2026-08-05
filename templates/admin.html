@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard </title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-main: #0f172a;
+            --bg-side: #020617;
+            --card-bg: #1e293b;
+            --accent-primary: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --border: #334155;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body { display: flex; background: var(--bg-main); color: var(--text-main); min-height: 100vh; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-side);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .sidebar .logo {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 40px;
+            color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar a:hover, .sidebar a.active {
+            background: #1e293b;
+            color: var(--text-main);
+        }
+
+        .sidebar a i { font-size: 18px; width: 20px; text-align: center; }
+
+        .logout-link { margin-top: auto; color: var(--danger) !important; }
+        .logout-link:hover { background: rgba(239, 68, 68, 0.1); }
+
+        /* MAIN CONTENT */
+        .main { flex: 1; padding: 40px; margin-left: 260px; }
+
+        /* TOPBAR */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .search-container { position: relative; }
+        .search-container i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .search-container input {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 12px 12px 12px 42px;
+            border-radius: 12px;
+            color: white;
+            width: 320px;
+            outline: none;
+            transition: 0.3s;
+        }
+        .search-container input:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15); }
+
+        /* STAT CARDS */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover { transform: translateY(-5px); border-color: var(--accent-primary); box-shadow: 0 10px 20px -10px rgba(0,0,0,0.5); }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-primary);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            font-size: 22px;
+        }
+
+        .card h3 { color: var(--text-muted); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; }
+        .card p { font-size: 34px; font-weight: 700; margin-top: 8px; }
+
+        /* DATA SECTION */
+        .section-header {
+            margin-top: 50px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { 
+            color: var(--text-muted); 
+            font-weight: 600; 
+            font-size: 12px; 
+            text-transform: uppercase; 
+            padding: 20px; 
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0,0,0,0.1);
+        }
+        td { padding: 18px 20px; font-size: 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+        /* BADGES & BUTTONS */
+        .badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 100px;
+            justify-content: center;
+        }
+        .badge-active { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+        .badge-blocked { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+        .action-cell { display: flex; align-items: center; gap: 12px; }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            height: 38px;
+        }
+
+        .btn-toggle { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .btn-toggle:hover { background: var(--warning); color: white; }
+
+        .btn-delete { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .btn-delete:hover { background: var(--danger); color: white; }
+        /* --- Custom Course Dropdown Styles --- */
+        .course-dropdown {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 8px;
+            width: 100%;
+        }
+
+        /* The Main Toggle Button */
+        .course-dropdown-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: transparent; /* Forces the transparent background */
+            color: var(--text-muted); /* Matches standard link color */
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Hover & Active State for Main Button */
+        .course-dropdown-toggle:hover,
+        .course-dropdown.open .course-dropdown-toggle {
+            background-color: var(--card-bg);
+            color: var(--text-main);
+        }
+
+        .toggle-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toggle-left i {
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .course-chevron {
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        /* Rotate chevron when open */
+        .course-dropdown.open .course-chevron {
+            transform: rotate(180deg);
+        }
+
+        /* Submenu Container */
+        .course-submenu {
+            display: none; /* Crucial: Hides menu by default */
+            flex-direction: column;
+            gap: 4px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            margin-left: 12px; /* Indentation */
+            margin-right: 12px;
+        }
+
+        /* Class added by JS to show the menu */
+        .course-submenu.show {
+            display: flex;
+        }
+
+        /* Submenu Links */
+        .course-sublink {
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: block;
+            border-radius: 8px;
+            color: var(--text-muted); /* Base text color */
+        }
+
+        .course-sublink.plain {
+            padding: 10px 16px;
+        }
+
+        .course-sublink.highlight {
+            padding: 12px 16px;
+            margin-top: 4px;
+        }
+
+        /* Hover effect for submenu items */
+        .course-sublink:hover {
+            background-color: var(--card-bg);
+            color: var(--text-main);
+        }
+    </style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+    <div class="logo">
+        <i class="fas fa-shield-halved"></i> Admin
+    </div>
+    <a href="/admin" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+    <a href="/admin/users"><i class="fas fa-users"></i> Users</a>
+    <a href="/admin/ats_reports"><i class="fas fa-file-alt"></i> ATS Reports</a>
+    <a href="/admin/analytics"><i class="fas fa-bolt"></i> Analytics</a>
+    <div class="course-dropdown {% if '/admin/courses' in request.path %}open{% endif %}">
+        <button class="course-dropdown-toggle" onclick="toggleCourseMenu(this)">
+            <div class="toggle-left">
+                <i class="fas fa-graduation-cap"></i>
+                <span>My Courses</span>
+            </div>
+                <i class="fas fa-chevron-down course-chevron"></i>
+        </button>
+
+        <div class="course-submenu {% if '/admin/courses' in request.path %}show{% endif %}">
+            <a href="{{ url_for('admin_courses') }}" class="course-sublink plain">Course List</a>
+            <a href="{{ url_for('create_course') }}" class="course-sublink highlight">Create Course</a>
+        </div>
+    </div>
+
+    <a href="/admin/logout" class="logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</aside>
+
+<main class="main">
+    <header class="topbar">
+        <h2>Dashboard Overview</h2>
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="globalSearch" placeholder="Search data...">
+        </div>
+    </header>
+
+    <section class="cards">
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-user-group"></i></div>
+            <h3>Total Users</h3>
+            <p>{{ total_users }}</p>
+        </div>
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-file-circle-check"></i></div>
+            <h3>ATS Checks</h3>
+            <p>{{ ats_count }}</p>
+        </div>
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+            <h3>Predictions</h3>
+            <p>{{ total_users }}</p>
+        </div>
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+            <h3>Active Today</h3>
+            <p>{{ total_users }}</p>
+        </div>
+    </section>
+
+    <div class="section-header">
+        <h3>Recent Users</h3>
+        <div class="search-container">
+            <i class="fas fa-filter"></i>
+            <input type="text" id="searchInput" placeholder="Filter users..." style="width: 250px;">
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="userTable">
+                {% for user in users %}
+                <tr>
+                    <td style="font-weight: 600;">{{ user[1] }}</td>
+                    <td style="color: var(--text-muted);">{{ user[2] }}</td>
+                    <td>
+                        {% if user[3] == "active" %}
+                            <span class="badge badge-active"><i class="fas fa-check-circle"></i> Active</span>
+                        {% else %}
+                            <span class="badge badge-blocked"><i class="fas fa-ban"></i> Blocked</span>
+                        {% endif %}
+                    </td>
+                    <td class="action-cell">
+                        <button class="btn btn-toggle" onclick="window.location.href='/toggle_user/{{ user[0] }}'">
+                            <i class="fas fa-rotate"></i> Toggle
+                        </button>
+                        <button class="btn btn-delete" onclick="window.location.href='/delete_user/{{ user[0] }}'">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<script>
+    // Improved Dynamic Search
+    document.getElementById("searchInput").addEventListener("keyup", function() {
+        let value = this.value.toLowerCase();
+        let rows = document.querySelectorAll("#userTable tr");
+
+        rows.forEach(row => {
+            let name = row.cells[0].innerText.toLowerCase();
+            let email = row.cells[1].innerText.toLowerCase();
+            row.style.display = (name.includes(value) || email.includes(value)) ? "" : "none";
+        });
+    });
+
+    function confirmDelete(id) {
+        if (confirm("Are you sure you want to permanently delete this user? This action cannot be undone.")) {
+            window.location.href = "/delete_user/" + id;
+        }
+    }
+    function toggleCourseMenu(button) {
+            // Find the parent dropdown container
+        const dropdown = button.closest('.course-dropdown');
+            // Find the submenu inside it
+        const submenu = dropdown.querySelector('.course-submenu');
+            
+            // Toggle the open/show classes
+        dropdown.classList.toggle('open');
+        submenu.classList.toggle('show');
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Smart Career AI - FAQs{% endblock %}
+
+{% block header_title %}FAQs{% endblock %}
+
+{% block extra_css %}
+<style>
+    .faq-wrapper {
+        max-width: 850px;
+        width: 100%;
+        margin: 0 auto; /* Centers the FAQ in the content area */
+        padding-top: 20px;
+    }
+
+    .faq-header p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+    }
+
+    .faq-category-title {
+        font-size: 1.25rem;
+        color: #00c6ff; /* Matched to your profile circle gradient */
+        margin-top: 30px;
+        margin-bottom: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 10px;
+        font-weight: 600;
+    }
+
+    /* Accordion Styles matching Base Template Glassmorphism */
+    .faq-item {
+        background: rgba(255, 255, 255, 0.05); /* Transparent glass look */
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        margin-bottom: 15px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .faq-question {
+        width: 100%;
+        background: transparent;
+        border: none;
+        padding: 20px 25px;
+        text-align: left;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #ffffff;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.3s ease;
+        font-family: inherit; /* Inherit Poppins from base */
+    }
+
+    .faq-question:hover {
+        background: rgba(255, 255, 255, 0.1); /* Lighter on hover */
+    }
+
+    /* The plus icon */
+    .icon {
+        font-size: 1.5rem;
+        font-weight: 300;
+        color: #00c6ff;
+        transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    /* The active state rotates the + to an x */
+    .faq-question.active .icon {
+        transform: rotate(45deg);
+        color: #ff4b4b; /* Matched to your sign-out button red */
+    }
+
+    .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+        background: rgba(0, 0, 0, 0.15); /* Slightly darker for the answer body */
+    }
+
+    .faq-answer p {
+        padding: 0 25px 25px 25px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="faq-wrapper">
+    <div class="faq-header">
+        <p>Everything you need to know about using the SmartCareerAI platform.</p>
+    </div>
+
+    <h2 class="faq-category-title">General & Account</h2>
+
+    <div class="faq-item">
+        <button class="faq-question">
+            What is SmartCareerAI? <span class="icon">+</span>
+        </button>
+        <div class="faq-answer">
+            <p>SmartCareerAI is an AI-driven platform designed to empower your professional journey. We analyze your skills and interests to recommend ideal career paths, optimize your resume, and bridge knowledge gaps.</p>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <button class="faq-question">
+            How do I upgrade from a Free Member? <span class="icon">+</span>
+        </button>
+        <div class="faq-answer">
+            <p>Currently, you are registered as a Free Member. You can view upgrade options and manage your subscription by opening the profile menu on the top right.</p>
+        </div>
+    </div>
+
+    <h2 class="faq-category-title">Core Features</h2>
+
+    <div class="faq-item">
+        <button class="faq-question">
+            How do I update my Skills and Interests? <span class="icon">+</span>
+        </button>
+        <div class="faq-answer">
+            <p>On your main dashboard, simply type a skill (e.g., JavaScript) or interest into the respective text boxes and click the blue "+" button. To remove a tag, click the "x" next to its name. Once you are done, click "Apply Changes" to save your preferences.</p>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <button class="faq-question">
+            What is the Personalized Career Roadmap? <span class="icon">+</span>
+        </button>
+        <div class="faq-answer">
+            <p>Our AI performs a real-time analysis based on your profile inputs and uploaded CV. It then generates a roadmap, showing career titles alongside a Match Percentage to indicate how well your current profile aligns with that role.</p>
+        </div>
+    </div>
+
+    <h2 class="faq-category-title">Resume & Assessments</h2>
+
+    <div class="faq-item">
+        <button class="faq-question">
+            How does the ATS Checker work? <span class="icon">+</span>
+        </button>
+        <div class="faq-answer">
+            <p>Navigate to the ATS Checker from the left-hand menu. Upload your resume, and our system will analyze it against common Applicant Tracking System algorithms to ensure your formatting and keywords are optimized for recruiters.</p>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <button class="faq-question">
+            How do the curated Courses help me? <span class="icon">+</span>
+        </button>
+        <div class="faq-answer">
+            <p>If our AI detects a gap between your current skills and your desired career path, we will recommend specific, curated Courses from our library to help you bridge that knowledge gap and improve your match percentage.</p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Select all the FAQ question buttons
+    const questions = document.querySelectorAll('.faq-question');
+
+    questions.forEach(question => {
+        question.addEventListener('click', () => {
+            // Toggle the 'active' class on the clicked button
+            question.classList.toggle('active');
+
+            // Get the next sibling element (the answer div)
+            const answer = question.nextElementSibling;
+
+            // If the button is active, expand the answer
+            if (question.classList.contains('active')) {
+                // Add a little extra padding to the calculation for visual breathing room
+                answer.style.maxHeight = answer.scrollHeight + 20 + "px";
+            } else {
+                // Collapse the answer
+                answer.style.maxHeight = 0;
+            }
+        });
+    });
+</script>
+{% endblock %}

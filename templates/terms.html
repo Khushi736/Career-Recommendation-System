@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Terms of Service - SmartCareerAI{% endblock %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+    .terms-page {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: transparent;
+        color: #e2e8f0;
+        margin: 0;
+        padding-bottom: 100px;
+    }
+
+
+    /* Modern Horizontal Header - Pure Vibrant Feel */
+    .terms-vibrant-header {
+        width: 100%;
+        background: linear-gradient(to right, rgba(0, 198, 255, 0.08), rgba(0, 114, 255, 0.12), rgba(0, 198, 255, 0.08));
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 80px 0;
+        margin-bottom: 80px;
+        overflow: hidden;
+        position: sticky;
+        /* This is the magic number: the height of your main header */
+        top: 85px; 
+        z-index: 980; /* Slightly lower than your main header (990) */
+        border: 1px solid rgba(0, 198, 255, 0.15);
+        margin-top: 20px;
+        margin-bottom: 40px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(15px); /* Blurs the text scrolling underneath it */
+    }
+
+    /* Subtle glow circles for vibrancy without boxes */
+    .terms-vibrant-header::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(0, 198, 255, 0.15) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .container-custom {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 30px;
+    }
+
+    .terms-vibrant-header span {
+        color: #00d2ff;
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 5px;
+        display: block;
+        margin-bottom: 15px;
+        z-index: 1;
+    }
+
+    .terms-vibrant-header h1 {
+        font-size: 4rem;
+        font-weight: 600;
+        margin: 0;
+        color: #ffffff;
+        letter-spacing: -2px;
+        line-height: 1.1;
+        z-index: 1;
+    }
+
+    /* Content Layout */
+    .terms-body {
+        max-width: 850px;
+        margin: 0 auto;
+        padding: 0 30px;
+    }
+
+    .section-block {
+        margin-bottom: 60px;
+    }
+
+    .section-block h3 {
+        color: #00d2ff;
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+    }
+
+    
+
+    .section-block p {
+        font-size: 1.1rem;
+        line-height: 1.9;
+        font-weight: 300; /* Minimal weight for clarity */
+        color: rgba(255, 255, 255, 0.75);
+        margin-bottom: 25px;
+        text-align: left;
+    }
+
+    .section-block ul {
+        list-style: none;
+        padding-left: 32px;
+    }
+
+    .section-block li {
+        position: relative;
+        margin-bottom: 15px;
+        font-size: 1.05rem;
+        font-weight: 300;
+        color: rgba(255, 255, 255, 0.65);
+    }
+
+    .section-block li::before {
+        content: "•";
+        position: absolute;
+        left: -25px;
+        color: #00d2ff;
+        font-weight: bold;
+    }
+
+    .section-block a {
+        color: #00d2ff;
+        text-decoration: none;
+        font-weight: 500;
+        border-bottom: 1px solid rgba(0, 210, 255, 0.3);
+        transition: 0.3s;
+    }
+
+    .section-block a:hover {
+        color: #fff;
+        border-bottom: 1px solid #fff;
+    }
+
+    @media (max-width: 768px) {
+        .terms-vibrant-header h1 { font-size: 2.8rem; }
+        .terms-vibrant-header { padding: 60px 0; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="terms-page">
+    
+    <div class="terms-vibrant-header">
+        <div class="container-custom">
+            <h1>Terms of Service</h1>
+        </div>
+    </div>
+
+    <div class="terms-body">
+        <div class="section-block">
+            <h3>1. Acceptance of Terms</h3>
+            <p>Welcome to <strong>SmartCareerAI</strong>. By using our platform, you agree to these legal terms. We offer specialized career tools including Random Forest-based recommendation engines and ATS checking services. Your access constitutes agreement to our professional standards.</p>
+        </div>
+
+        <div class="section-block">
+            <h3>2. Description of Service</h3>
+            <p>We provide AI-driven career recommendation engines, ATS scorers, and skill assessments. These tools use proprietary algorithms to process user data and deliver high-precision career insights and educational roadmaps.</p>
+        </div>
+
+        <div class="section-block">
+            <h3>3. User Responsibilities</h3>
+            <p>To ensure our AI models perform accurately for you, users must adhere to the following:</p>
+            <ul>
+                <li>Provide accurate profile information for better prediction training.</li>
+                <li>Maintain the security of account passwords and credentials.</li>
+                <li>Use the services solely for personal career development purposes.</li>
+            </ul>
+        </div>
+
+        <div class="section-block">
+            <h3>4. AI & Professional Disclaimer</h3>
+            <p>Our algorithms, such as Random Forest Classifiers, provide guidance based on historical data patterns. These results are for informational purposes and do not serve as a legal guarantee of job placement.</p>
+        </div>
+
+        <div class="section-block">
+            <h3>5. Intellectual Property</h3>
+            <p>The code, design, and AI logic are protected assets. While you own your uploaded documents, you grant us permission to analyze them to generate your personalized reports.</p>
+        </div>
+
+        <div class="section-block">
+            <h3>6. Acceptable Use</h3>
+            <p>You may not scrape data or reverse-engineer our AI logic. Any breach of security protocols will result in immediate termination of access.</p>
+        </div>
+
+        <div class="section-block">
+            <h3>7. Legal Contact</h3>
+            <p>For any clarifications regarding these terms, contact our support desk at <a href="mailto:support@smartcareerai.com">support@smartcareerai.com</a>.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

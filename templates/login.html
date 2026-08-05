@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login | Smart Career AI</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+input, button {
+    box-sizing: border-box;
+    width: 100%; /* Ensure it spans the container evenly */
+    margin-left: 0; /* Reset any accidental margins */
+    margin-right: 0;
+}
+
+.container {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(15px);
+    padding: 40px;
+    border-radius: 20px;
+    width: 350px;
+    color: white;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: none;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #ff4b2b;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #ff416c;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+<h2>Login</h2>
+
+<form method="POST">
+<input type="email" name="email" placeholder="Email" required>
+<input type="password" name="password" placeholder="Password" required>
+
+<button type="submit">Login</button>
+</form>
+
+<p style="text-align:center;margin-top:10px;">
+New user? 
+<a href="{{ url_for('register') }}" style="color:#fff;">Register</a>
+</p>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    /* Highly Visible, Centered Toast */
+    .highlight-toast {
+        background: rgba(101, 112, 115, 0.98) !important;
+        backdrop-filter: blur(10px) !important;
+        border: 2px solid #6c98a4 !important;
+        border-radius: 8px !important; 
+        box-shadow: 0 15px 40px rgba(0, 198, 255, 0.4) !important;
+        padding: 14px 28px !important; 
+        margin-top: 20px !important; 
+    }
+
+    .toast-title {
+        color: white !important;
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+        margin: 0 !important;
+        
+    
+    }
+    
+    .toast-text {
+        color: rgba(255,255,255,0.9) !important; 
+        font-family: 'Poppins', sans-serif !important;
+        font-size: 14px !important;
+        margin-top: 2px !important;
+        
+</style>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top', 
+                    showConfirmButton: false, 
+                    timer: 4000, 
+                    timerProgressBar: false, 
+                    background: 'transparent',
+                    customClass: {
+                        popup: 'highlight-toast',
+                        title: 'toast-title',
+                        htmlContainer: 'toast-text'
+                    },
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                });
+
+                {% for category, message in messages %}
+                    Toast.fire({
+                        icon: '{{ "error" if category == "error" else "success" }}',
+                        title: '{{ "Oops!" if category == "error" else "Success!" }}',
+                        text: '{{ message }}'
+                    });
+                {% endfor %}
+            });
+        </script>
+    {% endif %}
+{% endwith %}
+</body>
+</html>

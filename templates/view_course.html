@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.title }} Chapters | SmartCareerAI{% endblock %}
+
+{% block content %}
+<style>
+    /* --- Main Section Wrapper --- */
+    .chapters-main-section {
+        padding: 3rem 4rem;
+        color: #e2e8f0;
+        font-family: 'Inter', system-ui, sans-serif;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* --- Page Header (Matches 'Courses' Header) --- */
+    .page-header {
+        margin-bottom: 2.5rem;
+    }
+
+    .page-title {
+        color: #3dc4b6; /* Exact teal color from your screenshot heading */
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        letter-spacing: 0.5px;
+    }
+
+    .page-subtitle {
+        color: #94a3b8;
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    /* --- Chapter Cards Container --- */
+    .chapter-list-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        max-width: 950px; /* Matches the wide card layout in the image */
+    }
+
+    /* --- Chapter Card (Matches 'Learn Python' Card) --- */
+    .chapter-card {
+        background-color: #1c2e36; /* Dark translucent card background */
+        border: 1px solid #273e4a; /* Subtle border */
+        border-radius: 10px;
+        padding: 1.75rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .chapter-card:hover {
+        border-color: rgba(255, 255, 255, 0.06);; /* Subtle teal hover effect */
+        transform: translateY(-2px);
+       
+    }
+
+    .chapter-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .chapter-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin: 0;
+    }
+
+    .chapter-desc {
+        color: #94a3b8; /* Muted subtitle color */
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    .chapter-meta {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        color: #64748b; /* Darkest text for meta info */
+    }
+
+    /* --- Action Button (Matches 'Start Learning' Button) --- */
+    .btn-start {
+        padding: 0.6rem 1.5rem;
+        background-color: transparent;
+        border: 1px solid #2982d6; /* Blue outline */
+        color: #2982d6; /* Blue text */
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        white-space: nowrap;
+        margin-left: 1rem;
+    }
+
+    .btn-start:hover {
+        background-color: rgba(41, 130, 214, 0.1);
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .chapters-main-section { padding: 2rem 1.5rem; }
+        .chapter-card { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+        .btn-start { margin-left: 0; width: 100%; text-align: center; }
+    }
+</style>
+
+<div class="chapters-main-section">
+    <div class="page-header">
+        <!-- Dynamic Heading using the specific Course title -->
+        <h1 class="page-title">{{ course.title }} Chapters</h1>
+        <p class="page-subtitle">Explore our comprehensive collection of chapters designed to advance your skills.</p>
+    </div>
+
+    <div class="chapter-list-container">
+        <!-- Loop through database chapters -->
+        {% if chapters %}
+            {% for chapter in chapters %}
+            
+            {# [UPDATED LOGIC] Fetch status from the dictionary passed from the backend #}
+            {% set status = progress_dict.get(chapter.id, 'not_started') %}
+
+            <div class="chapter-card">
+                <div class="chapter-info">
+                    <h2 class="chapter-title">{{ loop.index }}. {{ chapter.title }}</h2>
+                    <p class="chapter-desc">{{ chapter.description | default('Dive into the core concepts and master this topic.') }}</p>
+                    
+                    <div class="chapter-meta">
+                        <span>{{ chapter.duration | default('15 mins') }} Read</span>
+                        
+                        <span class="status-indicator">
+                            Status: 
+                            {# Use the 'status' variable set above instead of 'chapter.status' #}
+                            {% if status == 'completed' %}
+                                <strong style="color: #4ade80;">Completed <i class="fas fa-check-circle"></i></strong>
+                            {% elif status == 'in_progress' %}
+                                <strong style="color: #fbbf24;">In Progress</strong>
+                            {% else %}
+                                <span style="color: #94a3b8;">Not Started</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Routing to the dedicated reading page -->
+                <a href="{{ url_for('lesson_course', course_id=course.id, chapter_id=chapter.id) }}" class="btn-start">
+                    {# Change button text based on status #}
+                    {% if status == 'completed' %} Review Lesson {% else %} Start Learning {% endif %}
+                </a>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Fallback if the course is empty -->
+            <div class="chapter-card" style="justify-content: center; text-align: center; padding: 4rem;">
+                <p class="chapter-desc">No chapters have been added to this course yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<script>
+    // Agar page browser ki history/cache se load ho raha hai, toh usko force reload karo
+    window.addEventListener("pageshow", function (event) {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    });
+</script>
+{% endblock %}

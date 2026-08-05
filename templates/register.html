@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Register | Smart Career AI</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+input, button {
+    box-sizing: border-box;
+    width: 100%; /* Ensure it spans the container evenly */
+    margin-left: 0; /* Reset any accidental margins */
+    margin-right: 0;
+}
+
+.container {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(15px);
+    padding: 40px;
+    border-radius: 20px;
+    width: 360px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    
+}
+
+h2 {
+    text-align: center;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 8px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #00c6ff;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0072ff;
+}
+
+a {
+    color: #fff;
+    text-decoration: none;
+}
+.resume-drop-zone {
+    position: relative;
+    width: 100%;
+    padding: 10px 12px;
+    background-color: #f0f4f8; /* Light blue/grey to match your form inputs */
+    border: none ;
+    border-radius: 8px;
+    text-align: center;
+    color: #555;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+    transition: 0.3s;
+}
+.resume-drop-zone p {
+    margin: 0; 
+    font-size: 14px; /* Slightly smaller text to fit the compact box */
+}
+
+.resume-drop-zone:hover {
+    background-color: #e2e8f0;
+    border-color: #0072ff;
+}
+
+.resume-drop-zone span {
+    color: #00c6ff;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+/* This makes the file input invisible but covers the whole box so clicking anywhere works */
+.resume-drop-zone input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0; 
+    cursor: pointer;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+<h2>Create Account</h2>
+
+<form method="POST" enctype="multipart/form-data">
+<input type="text" name="name" placeholder="Full Name" required>
+<input type="email" name="email" placeholder="Email" required>
+<input type="password" name="password" placeholder="Password" required>
+<input type="password" name="confirm_password" placeholder="Confirm Password" required>
+<input type="tel" name="mobile" placeholder="Mobile Number" required minlength="10" maxlength="10" 
+pattern="[0-9]{10}" title="Please enter exactly 10 digits" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+<div class="resume-drop-zone">
+    <p id="file-name-display">upload your resume here, or <span>Browse</span></p>
+    
+    <input type="file" id="resumeInput" name="resume" accept=".pdf, .doc, .docx" required>
+</div>
+
+<button type="submit">Register</button>
+</form>
+
+<p style="text-align:center;margin-top:10px;">
+Already have account? 
+<a href="{{ url_for('login') }}">Login</a>
+</p>
+
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        const fileInput = document.getElementById("resumeInput");
+        const displayArea = document.getElementById("file-name-display");
+        
+        // Store the original text
+        const defaultText = 'upload your resume here, or <span>Browse</span>';
+
+        fileInput.addEventListener("change", function(event) {
+            
+            // Check if a file was actually selected
+            if (fileInput.files && fileInput.files.length > 0) {
+                let fileName = fileInput.files[0].name;
+                
+                // Updated HTML: Text stays perfectly centered, 'X' is pinned to the right
+                displayArea.innerHTML = `
+                    <span style="color: #00c6ff; font-weight: bold; display: inline-block; max-width: 80%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle;">
+                        ${fileName}
+                    </span>
+                    <button type="button" id="removeFileBtn" title="Remove file" 
+                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 10; background: none; border: none; color: #6b7280; cursor: pointer; font-size: 15px; padding: 5px; width: auto;">
+                        ✖ 
+                    </button>
+                `;
+                // Tell the 'X' button what to do when clicked
+                document.getElementById("removeFileBtn").addEventListener("click", function(e) {
+                    e.preventDefault();  
+                    e.stopPropagation(); 
+                    
+                    fileInput.value = ""; // Clear the file
+                    displayArea.innerHTML = defaultText; // Reset text
+                });
+                
+            } else {
+                displayArea.innerHTML = defaultText;
+            }
+        });
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    /* Highly Visible, Centered Toast */
+    .highlight-toast {
+        background: rgba(101, 112, 115, 0.98) !important;
+        backdrop-filter: blur(10px) !important;
+        border: 2px solid #6c98a4 !important;
+        border-radius: 8px !important; 
+        box-shadow: 0 15px 40px rgba(0, 198, 255, 0.4) !important;
+        padding: 14px 28px !important; 
+        margin-top: 20px !important; 
+    }
+
+    .toast-title {
+        color: white !important;
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+        margin: 0 !important;
+    }
+    
+    .toast-text {
+        color: rgba(255,255,255,0.9) !important; 
+        font-family: 'Poppins', sans-serif !important;
+        font-size: 14px !important;
+        margin-top: 2px !important;
+    }
+</style>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top', 
+                    showConfirmButton: false, 
+                    timer: 4000, 
+                    timerProgressBar: false, 
+                    background: 'transparent',
+                    customClass: {
+                        popup: 'highlight-toast',
+                        title: 'toast-title',
+                        htmlContainer: 'toast-text'
+                    },
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                });
+
+                {% for category, message in messages %}
+                    Toast.fire({
+                        icon: '{{ "error" if category == "error" else "success" }}',
+                        title: '{{ "Oops!" if category == "error" else "Success!" }}',
+                        text: '{{ message }}'
+                    });
+                {% endfor %}
+            });
+        </script>
+    {% endif %}
+{% endwith %}
+</body>
+</html>

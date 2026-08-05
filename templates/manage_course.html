@@ -1,0 +1,545 @@
+{% extends "admin_base.html" %} 
+
+{% block title %}{% if is_edit %}Edit Chapter{% else %}Manage Chapters{% endif %} | {{ course.title }}{% endblock %}
+
+{% block top_navbar %}{% endblock %}
+
+{% block content %}
+<style>
+    /* --- Layout & Typography --- */
+    .manage-page {
+        margin-top: 20px;
+        font-family: 'Inter', system-ui, sans-serif;
+        color: #e2e8f0;
+        width: 100%;
+        max-width: 1200px;
+        box-sizing: border-box;
+    }
+
+    .manage-page * { box-sizing: inherit; }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #38bdf8;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    .back-link:hover { color: #7dd3fc; }
+
+    .course-header {
+        font-size: 2rem;
+        font-weight: 900;
+        color: #ffffff;
+        margin: 0 0 2rem 0;
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+    }
+    .course-header span {
+        font-size: 1.25rem;
+        font-weight: 500;
+        color: #64748b;
+    }
+
+    /* --- Grid Layout --- */
+    .manage-grid {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+        align-items: start;
+    }
+    @media (max-width: 1024px) {
+        .manage-grid { grid-template-columns: 1fr; }
+    }
+
+    /* --- Cards & Panels --- */
+    .panel {
+        background-color: #1e293b;
+        border-radius: 12px;
+        border: 1px solid #334155;
+        padding: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+    .panel-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #f8fafc;
+        margin: 0 0 1.5rem 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* --- Form Elements --- */
+    .form-row {
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .form-group { margin-bottom: 1.5rem; }
+    
+    .form-label {
+        display: block;
+        color: #cbd5e1;
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+    .form-control {
+        width: 100%;
+        background-color: #0f172a;
+        color: #f8fafc;
+        border: 1px solid #334155;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    .form-control:focus { border-color: #38bdf8; }
+    textarea.form-control { resize: vertical; min-height: 120px; }
+
+    /* --- Markdown Info Box --- */
+    .info-box {
+        background-color: rgba(56, 189, 248, 0.05);
+        border: 1px solid rgba(56, 189, 248, 0.2);
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: #cbd5e1;
+    }
+    .info-box code {
+        background-color: rgba(0,0,0,0.2);
+        padding: 0.1rem 0.3rem;
+        border-radius: 0.25rem;
+    }
+
+    /* --- Quiz Builder --- */
+    .quiz-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    @media (max-width: 768px) { .quiz-grid { grid-template-columns: 1fr; } }
+    
+    .quiz-card {
+        background-color: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        position: relative;
+    }
+    .quiz-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        font-weight: 700;
+        color: #f8fafc;
+    }
+    .btn-remove {
+        color: #f87171;
+        font-size: 0.75rem;
+        cursor: pointer;
+        background: none;
+        border: none;
+    }
+    .btn-remove:hover { text-decoration: underline; }
+    .quiz-options-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+    .correct-label { color: #4ade80 !important; }
+    
+    .btn-add-question {
+        background-color: #0f172a;
+        color: #f8fafc;
+        border: 1px solid #334155;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.2s;
+    }
+    .btn-add-question:hover { background-color: #334155; }
+
+    /* --- Sidebar ToC --- */
+    .sidebar-toc {
+        position: sticky;
+        top: 20px;
+    }
+    .toc-count {
+        background: #38bdf8;
+        color: #0f172a;
+        border-radius: 999px;
+        padding: 0.1rem 0.6rem;
+        font-size: 0.875rem;
+    }
+    .toc-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #334155;
+    }
+    .toc-item:last-child { border-bottom: none; }
+    .toc-number {
+        background: #334155;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        margin-right: 0.75rem;
+    }
+    .toc-actions {
+        display: flex; 
+        gap: 0.5rem; 
+        align-items: center;
+    }
+    .toc-actions a {
+        color: #94a3b8;
+        transition: color 0.2s;
+    }
+    .toc-actions a:hover { color: #38bdf8; }
+
+    /* --- Two Column Cards --- */
+    .split-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .btn-primary {
+        background-color: #38bdf8;
+        color: #0f172a;
+        font-weight: 700;
+        padding: 0.875rem 2rem;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        width: auto;
+    }
+    .btn-primary:hover { background-color: #7dd3fc; }
+    
+    /* Edit Mode Additions */
+    .btn-cancel {
+        margin-left: 1rem;
+        color: #94a3b8;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s;
+    }
+    .btn-cancel:hover { color: #f8fafc; }
+    
+    .editing-now {
+        background: rgba(56, 189, 248, 0.1);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        margin: -1rem;
+        margin-bottom: 0;
+    }
+</style>
+
+<div class="manage-page">
+    
+    <a href="{{ url_for('admin_courses') }}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Courses
+    </a>
+    
+    <!-- Dynamic Course Title -->
+    <h1 class="course-header">{{ course.title }} <span>/ Chapters</span></h1>
+
+    <div class="manage-grid">
+        
+        <!-- LEFT COLUMN: The Form -->
+        <div class="main-content">
+            <!-- Dynamic Form Action -->
+            <form action="{% if is_edit %}{{ url_for('edit_chapter', chapter_id=edit_chapter.id) }}{% else %}{{ url_for('manage_course', course_id=course.id) }}{% endif %}" method="POST" enctype="multipart/form-data">
+                
+                <!-- Chapter Setup Panel -->
+                <div class="panel">
+                    <h2 class="panel-title">{% if is_edit %}Edit Chapter{% else %}Write New Chapter{% endif %}</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Chapter Title</label>
+                            <input type="text" name="chapter_title" class="form-control" placeholder="e.g. Variables and Data Types" value="{% if is_edit %}{{ edit_chapter.title }}{% endif %}" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Position</label>
+                            <input type="number" name="position" class="form-control" placeholder="1" value="{% if is_edit %}{{ edit_chapter.position }}{% endif %}" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label class="form-label">Tutorial Content</label>
+                        
+                        <!-- Info box updated for TinyMCE -->
+                        <div class="info-box">
+                            <strong>Pro Editor Tip:</strong> Use the toolbar below to format your lesson. Click the <strong>&lt;/&gt;</strong> icon to edit HTML manually, or the <strong>{;}</strong> icon to insert code blocks.
+                        </div>
+
+                        <!-- TinyMCE Container -->
+                        <div id="editor-container">
+                            <textarea name="content" id="editor" class="form-control">
+                                {% if is_edit %}{{ edit_chapter.content }}{% endif %}
+                            </textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Builder Panel -->
+                <div class="panel">
+                    <div class="panel-title">
+                        <span>Quiz Builder <span style="font-size: 0.875rem; color:#94a3b8; font-weight:normal; display:block; margin-top:0.25rem;">Fill the question cards below. Add more only when needed, up to 25.</span></span>
+                        <div style="display:flex; gap:1rem; align-items:center;">
+                            <label style="font-size:0.875rem; color:#cbd5e1; display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                                <input type="checkbox" name="require_pass" value="1" {% if is_edit and edit_chapter.require_pass %}checked{% endif %}> Require pass
+                            </label>
+                            <button type="button" class="btn-add-question" id="addQuestionBtn">Add Question</button>
+                        </div>
+                    </div>
+
+                    <!-- Grid to hold the question cards -->
+                    <div class="quiz-grid" id="quizContainer">
+                        <!-- Questions will be injected here by JS -->
+                    </div>
+                </div>
+
+                <!-- Split Cards for Premium & Download -->
+                <div class="split-cards">
+                    <div class="panel">
+                        <h2 class="panel-title">Premium Access</h2>
+                        <label style="background:#0f172a; border:1px solid #334155; padding:1rem; border-radius:0.5rem; display:flex; align-items:center; gap:0.75rem; cursor:pointer; color:#f8fafc;">
+                            <input type="checkbox" name="is_premium" value="1" {% if is_edit and edit_chapter.is_premium %}checked{% endif %}> 
+                            <strong>Premium chapter access only</strong>
+                        </label>
+                        <p style="color:#94a3b8; font-size:0.875rem; margin-top:1rem;">When enabled, only active paid users can open this chapter and its download.</p>
+                    </div>
+
+                    <div class="panel">
+                        <h2 class="panel-title">Download File</h2>
+                        <div class="form-group">
+                            <label class="form-label">Button Label</label>
+                            <input type="text" name="download_label" class="form-control" placeholder="Worksheet PDF / Source files" value="{% if is_edit and edit_chapter.download_label %}{{ edit_chapter.download_label }}{% endif %}">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Upload File {% if is_edit and edit_chapter.download_file %}(<span style="color:#38bdf8;">Has Existing File</span>){% endif %}</label>
+                            <input type="file" name="download_file" class="form-control" style="padding:0.5rem;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Practice Set Panel -->
+                <div class="panel">
+                    <h2 class="panel-title">Practice Set</h2>
+                    <textarea name="practice_set" class="form-control" placeholder="Add practice tasks, exercises, project prompt, or homework for this chapter." style="min-height:100px;">{% if is_edit and edit_chapter.practice_set %}{{ edit_chapter.practice_set }}{% endif %}</textarea>
+                </div>
+
+                <button type="submit" class="btn-primary">{% if is_edit %}Update Chapter{% else %}Publish New Chapter{% endif %}</button>
+                {% if is_edit %}
+                    <a href="{{ url_for('manage_course', course_id=course.id) }}" class="btn-cancel">Cancel Edit</a>
+                {% endif %}
+                <br><br>
+            </form>
+        </div>
+
+        <!-- RIGHT COLUMN: Sidebar Table of Contents -->
+        <div class="sidebar-toc panel">
+            <h2 class="panel-title">
+                Table of Contents 
+                <!-- Dynamic Chapter Count -->
+                <span class="toc-count">{{ chapters|length }}</span>
+            </h2>
+            
+            <div class="toc-list">
+                <!-- Fully Dynamic TOC Rendering -->
+                {% if chapters and chapters|length > 0 %}
+                    {% for chap in chapters %}
+                    <div class="toc-item {% if is_edit and chap.id == edit_chapter.id %}editing-now{% endif %}">
+                        <div>
+                            <span class="toc-number">{{ loop.index }}</span>
+                            {{ chap.title }}
+                        </div>
+                        
+                        <!-- Dynamic Edit and Delete Buttons -->
+                        <div class="toc-actions">
+                            <a href="{{ url_for('edit_chapter', chapter_id=chap.id) }}" title="Edit Chapter">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                            
+                            <!-- Form to Delete -->
+                            <form action="{{ url_for('delete_chapter', chapter_id=chap.id, course_id=course.id) }}" method="POST" style="margin: 0; display: inline;" onsubmit="return confirm('Are you sure you want to delete this chapter?');">
+                                <button type="submit" title="Delete Chapter" style="background: none; border: none; padding: 0; cursor: pointer; color: #94a3b8; transition: color 0.2s;" onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='#94a3b8'">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Dynamic Fallback when the database has 0 chapters for this course -->
+                    <div class="toc-item" style="border-bottom: none; color: #94a3b8; font-style: italic; font-size: 0.875rem;">
+                        No chapters added yet. Create your first one on the left!
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- JAVASCRIPT FOR DYNAMIC QUIZ BUILDER        -->
+<!-- ========================================== -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const quizContainer = document.getElementById('quizContainer');
+    const addBtn = document.getElementById('addQuestionBtn');
+    let questionCount = 0;
+    const MAX_QUESTIONS = 25;
+
+    // Modified to accept pre-filled data when editing
+    function createQuestionCard(index, data = null) {
+        const q = data ? data.q : '';
+        const c = data ? data.c : '';
+        const w1 = data ? data.w1 : '';
+        const w2 = data ? data.w2 : '';
+        const w3 = data ? data.w3 : '';
+
+        return `
+            <div class="quiz-card" id="qCard_${index}">
+                <div class="quiz-header">
+                    <span>Question ${index}</span>
+                    <button type="button" class="btn-remove" onclick="removeQuestion(${index})">Remove</button>
+                </div>
+                
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" style="font-size:0.75rem; text-transform:uppercase;">Question</label>
+                    <input type="text" name="quiz_question[]" class="form-control" placeholder="Example: What does PHP stand for?" value="${q}">
+                </div>
+
+                <div class="quiz-options-grid">
+                    <div>
+                        <label class="form-label correct-label" style="font-size:0.75rem; text-transform:uppercase;">Correct Answer</label>
+                        <input type="text" name="quiz_correct[]" class="form-control" placeholder="Correct option" value="${c}">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-size:0.75rem; text-transform:uppercase;">Wrong Option 1</label>
+                        <input type="text" name="quiz_wrong1[]" class="form-control" placeholder="Wrong option" value="${w1}">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-size:0.75rem; text-transform:uppercase;">Wrong Option 2</label>
+                        <input type="text" name="quiz_wrong2[]" class="form-control" placeholder="Wrong option" value="${w2}">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-size:0.75rem; text-transform:uppercase;">Wrong Option 3</label>
+                        <input type="text" name="quiz_wrong3[]" class="form-control" placeholder="Wrong option" value="${w3}">
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Function to add a question
+    window.addQuestion = function(data = null) {
+        if (questionCount >= MAX_QUESTIONS) {
+            alert("Maximum of 25 questions reached.");
+            return;
+        }
+        questionCount++;
+        quizContainer.insertAdjacentHTML('beforeend', createQuestionCard(questionCount, data));
+        updateCardNumbers();
+    }
+
+    // Function to remove a question
+    window.removeQuestion = function(id) {
+        const card = document.getElementById(`qCard_${id}`);
+        if (card) {
+            card.remove();
+            questionCount--;
+            updateCardNumbers();
+        }
+    }
+
+    // Renumbers the cards dynamically if one in the middle is deleted
+    function updateCardNumbers() {
+        const cards = quizContainer.querySelectorAll('.quiz-card');
+        cards.forEach((card, index) => {
+            const newIndex = index + 1;
+            card.id = `qCard_${newIndex}`;
+            card.querySelector('.quiz-header span').textContent = `Question ${newIndex}`;
+            card.querySelector('.btn-remove').setAttribute('onclick', `removeQuestion(${newIndex})`);
+        });
+    }
+
+    // --- PRE-LOAD EXISTING QUIZ QUESTIONS IF EDITING ---
+    {% if is_edit and quiz_questions %}
+        {% for q in quiz_questions %}
+        addQuestion({
+            q: {{ q.question | tojson }},
+            c: {{ q.correct_answer | tojson }},
+            w1: {{ q.wrong_1 | tojson }},
+            w2: {{ q.wrong_2 | tojson }},
+            w3: {{ q.wrong_3 | tojson }}
+        });
+        {% endfor %}
+    {% endif %}
+
+    // Event Listener for the Add button
+    addBtn.addEventListener('click', () => addQuestion(null));
+});
+</script>
+
+<!-- ========================================== -->
+<!-- TINYMCE EDITOR INTEGRATION                 -->
+<!-- ========================================== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        tinymce.init({
+            selector: '#editor',
+            plugins: 'codesample code lists link image table media wordcount',
+            toolbar: 'undo redo | sourcecode | blocks | bold italic strikethrough | alignleft aligncenter alignright | bullist numlist | codesample link image table',
+            
+            /* Enable Native Dark Mode */
+            skin: 'oxide-dark',
+            content_css: 'dark',
+            
+            height: 500,
+            menubar: false,
+            branding: false,
+            
+            /* Customizing the Source Code button icon to show up cleanly */
+            setup: function (editor) {
+                // This ensures the backend receives the data when you submit the form
+                editor.on('change', function () {
+                    editor.save(); 
+                });
+                
+                // Add a custom Source Code button to the toolbar
+                editor.ui.registry.addButton('sourcecode', {
+                    icon: 'sourcecode',
+                    tooltip: 'Edit Raw HTML',
+                    onAction: function (_) {
+                        editor.execCommand('mceCodeEditor');
+                    }
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}
